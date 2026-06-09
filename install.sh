@@ -2,15 +2,25 @@
 
 #=========================================
 # 參數設定
-# 預設的
+# 預設的 - 完整版 (約 5-8 GB)
 # brew_tap_array=("hashicorp/tap" "k8sgpt-ai/k8sgpt" "common-fate/granted")
 # brew_array=("zsh" "bash-completion" "watch" "kubernetes-cli" "kustomize" "helm" "hashicorp/tap/terraform" "terragrunt" "kubectx" "jq" "okteto" "k9s" "shellcheck" "autojump" "hugo" "wget" "telnet" "tree" "k6" "fzf" "kor" "kubent" "k8sgpt" "k3d" "pv" "dialog" "ipcalc" "yq" "helmfile" "awscli" "common-fate/granted/granted" "node" "go" "webp" "argocd" "hashicorp/tap/vault") # 套件
 # brew_cask=("1password" "google-chrome" "chatgpt-atlas" "iterm2" "visual-studio-code" "gitkraken" "postman" "docker" "telegram-desktop" "spotify" "raycast" "logi-options+" "notion" "notion-calendar" "google-cloud-sdk" "openvpn-connect" "chatgpt" "amazon-q" "drawio" "kiro") # 視窗程式
 
-# Tuffy使用
+# tuffy使用
 brew_tap_array=("hashicorp/tap" "k8sgpt-ai/k8sgpt" "common-fate/granted")
-brew_array=("zsh" "bash-completion" "watch" "kubernetes-cli" "kustomize" "helm" "hashicorp/tap/terraform" "terragrunt" "kubectx" "jq" "okteto" "k9s" "shellcheck" "autojump" "hugo" "wget" "telnet" "tree" "k6" "fzf" "kor" "kubent" "k8sgpt" "k3d" "pv" "dialog" "ipcalc" "yq" "helmfile" "awscli" "common-fate/granted/granted" "node" "go" "webp" "argocd" "hashicorp/tap/vault") # 套件
-brew_cask=("1password" "google-chrome" "chatgpt-atlas" "iterm2" "visual-studio-code" "gitkraken" "postman" "docker" "telegram-desktop" "spotify" "raycast" "logi-options+" "notion" "notion-calendar" "google-cloud-sdk" "openvpn-connect" "chatgpt" "amazon-q" "drawio" "kiro") # 視窗程式
+brew_array=("zsh" "bash-completion" "watch" "kubernetes-cli" "kustomize" "helm" "hashicorp/tap/terraform" "terragrunt" "kubectx" "jq" "k9s" "shellcheck" "autojump" "hugo" "wget" "telnet" "tree" "k6" "fzf" "kor" "kubent" "k8sgpt" "k3d" "pv" "dialog" "ipcalc" "yq" "helmfile" "awscli" "common-fate/granted/granted" "node" "go" "webp") # 套件
+brew_cask=("1password" "google-chrome" "iterm2" "visual-studio-code" "gitkraken" "docker" "telegram-desktop" "raycast" "logi-options+" "notion" "google-cloud-sdk" "openvpn-connect" "amazon-q" "drawio" "kiro") # 視窗程式
+
+# 精簡版 - 不含 K8s/Cloud 工具 (約 2-3 GB)
+# brew_tap_array=()
+# brew_array=("zsh" "bash-completion" "watch" "jq" "shellcheck" "autojump" "wget" "tree" "fzf" "yq" "node" "git") # 基礎工具
+# brew_cask=("1password" "google-chrome" "iterm2" "visual-studio-code" "docker" "raycast" "notion") # 基礎應用
+
+# 最小版 - 僅開發必要工具 (約 1 GB)
+# brew_tap_array=()
+# brew_array=("zsh" "bash-completion" "jq" "tree" "fzf" "git") # 最小工具集
+# brew_cask=("google-chrome" "iterm2" "visual-studio-code") # 最小應用
 
 
 #=========================================
