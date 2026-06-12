@@ -3,16 +3,16 @@
 #=========================================
 # 參數設定
 # 預設的 - 完整版 (適用於 Ubuntu/Zorin OS)
-# apt_array=("zsh" "bash-completion" "wget" "curl" "git" "jq" "tree" "telnet" "build-essential" "apt-transport-https" "ca-certificates" "gnupg" "lsb-release" "software-properties-common" "python3-pip" "fzf" "dialog" "bc" "vim" "net-tools" "ipcalc" "shellcheck" "hugo" "golang-go" "nodejs" "npm" "autojump")
-# snap_array=("kubectl" "helm" "terraform" "k9s" "yq" "hugo")
+# apt_array=("zsh" "bash-completion" "wget" "curl" "git" "jq" "tree" "telnet" "build-essential" "apt-transport-https" "ca-certificates" "gnupg" "lsb-release" "software-properties-common" "python3-pip" "fzf" "dialog" "bc" "vim" "net-tools" "ipcalc" "shellcheck" "hugo" "golang-go" "nodejs" "npm" "autojump" "kubectx")
+# snap_array=("yq")
 # snap_classic_array=("code" "docker") # 需要 --classic 的 snap 套件
-# manual_install_array=("kustomize" "kubectx" "terragrunt" "awscli" "gcloud" "google-chrome" "docker-desktop")
+# manual_install_array=("k9s" "kustomize" "terragrunt" "terraform" "gcloud" "google-chrome" "docker-desktop")
 
 # tuffy使用
-apt_array=("zsh" "bash-completion" "wget" "curl" "git" "jq" "tree" "telnet" "build-essential" "apt-transport-https" "ca-certificates" "gnupg" "lsb-release" "software-properties-common" "python3-pip" "fzf" "dialog" "bc" "vim" "net-tools" "ipcalc" "shellcheck" "hugo" "golang-go" "nodejs" "npm" "autojump")
-snap_array=("kubectl" "helm" "terraform" "k9s" "yq")
-snap_classic_array=("code" "docker")
-manual_install_array=("kustomize" "kubectx" "terragrunt" "awscli" "gcloud" "google-chrome")
+apt_array=("zsh" "bash-completion" "wget" "curl" "git" "jq" "tree" "telnet" "build-essential" "apt-transport-https" "ca-certificates" "gnupg" "lsb-release" "software-properties-common" "python3-pip" "fzf" "dialog" "bc" "vim" "net-tools" "ipcalc" "shellcheck" "hugo" "golang-go" "nodejs" "npm" "autojump" "kubectx")
+snap_array=("yq")
+snap_classic_array=("kubectl" "helm" "aws-cli" "code" "docker")
+manual_install_array=("k9s" "kustomize" "terragrunt" "terraform" "gcloud" "google-chrome")
 
 # 精簡版 - 不含 K8s/Cloud 工具
 # apt_array=("zsh" "bash-completion" "wget" "curl" "git" "jq" "tree" "build-essential" "python3-pip" "fzf" "vim" "autojump" "nodejs" "npm")
@@ -29,16 +29,18 @@ manual_install_array=("kustomize" "kubectx" "terragrunt" "awscli" "gcloud" "goog
 #=========================================
 # 腳本設定
 nowtime=$(date '+%Y/%m/%d %H:%M:%S')
-var=0
 num=0
+changed_count=0
+already_count=0
+failed_count=0
 
 #=========================================
 # 顏色設定
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # 重置颜色
+RED=$'\033[0;31m'
+GREEN=$'\033[0;32m'
+YELLOW=$'\033[0;33m'
+BLUE=$'\033[0;34m'
+NC=$'\033[0m' # 重置颜色
 
 #=========================================
 # 輔助函式
@@ -53,23 +55,37 @@ print_msg() {
     printf "%2d _ %s : [%s%s%s]\n" "$num" "$1" "$2" "$3" "${NC}"
 }
 
+print_error_log() {
+    local log_file="$1"
+    if [ -s "$log_file" ]; then
+        echo "   錯誤摘要:"
+        sed -n '1,8p' "$log_file" | sed 's/^/   /'
+    fi
+}
+
 # 安裝套件 (通用邏輯)
 install_pkg() {
     local pkg_name="$1"
     local install_cmd="$2"
     local check_cmd="$3"
     local msg="$4"
+    local log_file
 
     num="$((num + 1))"
-    if ! eval "$check_cmd"; then
-        var="$((var + 1))"
-        if sudo ${install_cmd} >/dev/null 2>&1; then
+    if eval "$check_cmd"; then
+        already_count="$((already_count + 1))"
+        print_msg "$msg" "${YELLOW}" "已安裝"
+    else
+        log_file=$(mktemp)
+        if bash -lc "$install_cmd" >"$log_file" 2>&1; then
+            changed_count="$((changed_count + 1))"
             print_msg "$msg" "${GREEN}" "安裝成功"
         else
+            failed_count="$((failed_count + 1))"
             print_msg "$msg" "${RED}" "安裝失敗"
+            print_error_log "$log_file"
         fi
-    else
-        print_msg "$msg" "${YELLOW}" "已安裝"
+        rm -f "$log_file"
     fi
 }
 
@@ -80,12 +96,118 @@ append_to_file() {
     local msg="$3"
     num="$((num + 1))"
     if ! grep -qF -- "$line" "$file"; then
-        var="$((var + 1))"
+        changed_count="$((changed_count + 1))"
         echo "$line" | sudo tee -a "$file" >/dev/null
         print_msg "$msg" "${GREEN}" "設定成功"
     else
+        already_count="$((already_count + 1))"
         print_msg "$msg" "${YELLOW}" "已設定"
     fi
+}
+
+# 依照目前標準模板寫入 .zshrc
+sync_zshrc() {
+    local file="$HOME/.zshrc"
+    local tmp_file
+    tmp_file=$(mktemp)
+
+    cat <<'EOF' > "$tmp_file"
+# =====================================================================
+# Oh My Zsh 基本設定
+# =====================================================================
+export ZSH="$HOME/.oh-my-zsh"
+export ZSH_THEME="clean"
+
+plugins=(
+  git
+  aws
+  kubectl
+  terraform
+  fzf-tab
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  autojump
+  kube-ps1
+)
+
+source "$ZSH/oh-my-zsh.sh"
+
+# =====================================================================
+# PATH 與常用工具
+# =====================================================================
+typeset -U path PATH
+path=(
+  "$HOME/.local/bin"
+  /usr/local/bin
+  /snap/bin
+  $path
+)
+export PATH
+
+if [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
+  source /usr/share/doc/fzf/examples/key-bindings.zsh
+fi
+
+if [ -f /usr/share/doc/fzf/examples/completion.zsh ]; then
+  source /usr/share/doc/fzf/examples/completion.zsh
+fi
+
+[ -f "$HOME/.fzf.zsh" ] && source "$HOME/.fzf.zsh"
+
+# 保留 ls 顏色，但取消特殊資料夾的底色顯示
+export LS_COLORS="${LS_COLORS}:st=01;34:ow=01;34:tw=01;34"
+
+# =====================================================================
+# Completion
+# =====================================================================
+autoload -U +X bashcompinit && bashcompinit
+
+if command -v kubectl >/dev/null 2>&1; then
+  source <(kubectl completion zsh)
+fi
+
+if command -v terraform >/dev/null 2>&1; then
+  complete -o nospace -C "$(command -v terraform)" terraform
+fi
+
+if [ -f "$HOME/.terragrunt-completion.zsh" ]; then
+  source "$HOME/.terragrunt-completion.zsh"
+fi
+
+# =====================================================================
+# Prompt 與偏好設定
+# =====================================================================
+setopt promptsubst
+
+if (( ${+functions[kube_ps1]} )); then
+  RPROMPT='$(kube_ps1)'
+fi
+
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=5000
+SAVEHIST=5000
+setopt hist_ignore_dups
+setopt share_history
+
+# =====================================================================
+# Aliases
+# =====================================================================
+alias k="kubectl"
+alias kns="kubens"
+alias ktx="kubectx"
+EOF
+
+    num="$((num + 1))"
+    if [ -f "$file" ] && cmp -s "$tmp_file" "$file"; then
+        already_count="$((already_count + 1))"
+        print_msg "同步 .zshrc" "${YELLOW}" "已設定"
+    else
+        changed_count="$((changed_count + 1))"
+        cp "$tmp_file" "$file"
+        print_msg "同步 .zshrc" "${GREEN}" "設定成功"
+    fi
+
+    rm -f "$tmp_file"
 }
 
 echo -e "============================== Linux Install Kit 腳本 =============================="
@@ -101,115 +223,166 @@ if [[ $EUID -ne 0 ]] && ! sudo -v; then
 fi
 
 # 更新 apt 套件列表
-var="$((var + 1))"
 num="$((num + 1))"
 echo -e "${num} _ 更新 apt 套件列表..."
-sudo apt update -qq
-printf "%2d _ 更新 apt 套件列表 : [${GREEN}更新成功${NC}]\n" "$num"
+if sudo apt update -qq; then
+    changed_count="$((changed_count + 1))"
+    printf "%2d _ 更新 apt 套件列表 : [${GREEN}更新成功${NC}]\n" "$num"
+else
+    failed_count="$((failed_count + 1))"
+    printf "%2d _ 更新 apt 套件列表 : [${RED}更新失敗${NC}]\n" "$num"
+fi
 
 # 安裝 apt 套件
 for kit in "${apt_array[@]}"; do
-    var="$((var + 1))"
     num="$((num + 1))"
     if ! dpkg -l | grep -q -w "^ii  $kit"; then
-        sudo apt install -y "$kit" -qq
-        print_msg "安裝 apt 套件 ($kit)" "${GREEN}" "安裝成功"
+        if sudo apt install -y "$kit" -qq; then
+            changed_count="$((changed_count + 1))"
+            print_msg "安裝 apt 套件 ($kit)" "${GREEN}" "安裝成功"
+        else
+            failed_count="$((failed_count + 1))"
+            print_msg "安裝 apt 套件 ($kit)" "${RED}" "安裝失敗"
+        fi
     else
+        already_count="$((already_count + 1))"
         print_msg "安裝 apt 套件 ($kit)" "${YELLOW}" "已安裝"
-        var="$((var - 1))"
     fi
 done
 
 # 安裝 snapd（如果尚未安裝）
-var="$((var + 1))"
 num="$((num + 1))"
 if ! command_exists snap; then
-    sudo apt install -y snapd -qq
-    print_msg "安裝 snapd" "${GREEN}" "安裝成功"
+    if sudo apt install -y snapd -qq; then
+        changed_count="$((changed_count + 1))"
+        print_msg "安裝 snapd" "${GREEN}" "安裝成功"
+    else
+        failed_count="$((failed_count + 1))"
+        print_msg "安裝 snapd" "${RED}" "安裝失敗"
+    fi
 else
+    already_count="$((already_count + 1))"
     print_msg "安裝 snapd" "${YELLOW}" "已安裝"
-    var="$((var - 1))"
 fi
 
 # 安裝 snap 套件
 for kit in "${snap_array[@]}"; do
-    var="$((var + 1))"
     num="$((num + 1))"
-    if ! snap list | grep -q -w "$kit"; then
-        sudo snap install "$kit"
-        print_msg "安裝 snap 套件 ($kit)" "${GREEN}" "安裝成功"
+    if ! snap list "$kit" >/dev/null 2>&1; then
+        if sudo snap install "$kit"; then
+            changed_count="$((changed_count + 1))"
+            print_msg "安裝 snap 套件 ($kit)" "${GREEN}" "安裝成功"
+        else
+            failed_count="$((failed_count + 1))"
+            print_msg "安裝 snap 套件 ($kit)" "${RED}" "安裝失敗"
+        fi
     else
+        already_count="$((already_count + 1))"
         print_msg "安裝 snap 套件 ($kit)" "${YELLOW}" "已安裝"
-        var="$((var - 1))"
     fi
 done
 
 # 安裝 snap 套件 (需要 --classic)
 for kit in "${snap_classic_array[@]}"; do
-    var="$((var + 1))"
     num="$((num + 1))"
-    if ! snap list | grep -q -w "$kit"; then
-        sudo snap install "$kit" --classic
-        print_msg "安裝 snap 套件 --classic ($kit)" "${GREEN}" "安裝成功"
+    if ! snap list "$kit" >/dev/null 2>&1; then
+        if sudo snap install "$kit" --classic; then
+            changed_count="$((changed_count + 1))"
+            print_msg "安裝 snap 套件 --classic ($kit)" "${GREEN}" "安裝成功"
+        else
+            failed_count="$((failed_count + 1))"
+            print_msg "安裝 snap 套件 --classic ($kit)" "${RED}" "安裝失敗"
+        fi
     else
+        already_count="$((already_count + 1))"
         print_msg "安裝 snap 套件 --classic ($kit)" "${YELLOW}" "已安裝"
-        var="$((var - 1))"
     fi
 done
 
 # 手動安裝 kustomize
-if [[ " ${manual_install_array[@]} " =~ " kustomize " ]]; then
-    var="$((var + 1))"
+if [[ " ${manual_install_array[@]} " =~ " k9s " ]]; then
     num="$((num + 1))"
-    if ! command_exists kustomize; then
-        if (curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash && sudo mv kustomize /usr/local/bin/); then
-            print_msg "安裝 kustomize" "${GREEN}" "安裝成功"
+    if ! command_exists k9s; then
+        K9S_VERSION=$(curl -fsSL https://api.github.com/repos/derailed/k9s/releases/latest | jq -r '.tag_name')
+        if (
+            wget -q "https://github.com/derailed/k9s/releases/download/${K9S_VERSION}/k9s_Linux_amd64.tar.gz" -O k9s_Linux_amd64.tar.gz &&
+            tar -xzf k9s_Linux_amd64.tar.gz k9s &&
+            chmod +x k9s &&
+            sudo mv k9s /usr/local/bin/k9s &&
+            rm -f k9s_Linux_amd64.tar.gz
+        ); then
+            changed_count="$((changed_count + 1))"
+            print_msg "安裝 k9s" "${GREEN}" "安裝成功"
         else
-            print_msg "安裝 kustomize" "${RED}" "安裝失敗"
+            failed_count="$((failed_count + 1))"
+            print_msg "安裝 k9s" "${RED}" "安裝失敗"
         fi
     else
-        print_msg "安裝 kustomize" "${YELLOW}" "已安裝"
-        var="$((var - 1))"
+        already_count="$((already_count + 1))"
+        print_msg "安裝 k9s" "${YELLOW}" "已安裝"
     fi
 fi
 
-# 手動安裝 kubectx & kubens
-if [[ " ${manual_install_array[@]} " =~ " kubectx " ]]; then
-    install_pkg "kubectx" \
-        "git clone https://github.com/ahmetb/kubectx /opt/kubectx && ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx && ln -s /opt/kubectx/kubens /usr/local/bin/kubens" \
-        "command_exists kubectx" \
-        "安裝 kubectx & kubens"
+# 手動安裝 kustomize
+if [[ " ${manual_install_array[@]} " =~ " kustomize " ]]; then
+    num="$((num + 1))"
+    if ! command_exists kustomize; then
+        if (curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash && sudo mv kustomize /usr/local/bin/); then
+            changed_count="$((changed_count + 1))"
+            print_msg "安裝 kustomize" "${GREEN}" "安裝成功"
+        else
+            failed_count="$((failed_count + 1))"
+            print_msg "安裝 kustomize" "${RED}" "安裝失敗"
+        fi
+    else
+        already_count="$((already_count + 1))"
+        print_msg "安裝 kustomize" "${YELLOW}" "已安裝"
+    fi
 fi
 
 # 手動安裝 terragrunt
 if [[ " ${manual_install_array[@]} " =~ " terragrunt " ]]; then
-    var="$((var + 1))"
     num="$((num + 1))"
     if ! command_exists terragrunt; then
         TERRAGRUNT_VERSION=$(curl -s https://api.github.com/repos/gruntwork-io/terragrunt/releases/latest | grep tag_name | cut -d '"' -f 4)
         if (wget -q "https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_VERSION}/terragrunt_linux_amd64" -O terragrunt && chmod +x terragrunt && sudo mv terragrunt /usr/local/bin/); then
+            changed_count="$((changed_count + 1))"
             print_msg "安裝 terragrunt" "${GREEN}" "安裝成功"
         else
+            failed_count="$((failed_count + 1))"
             print_msg "安裝 terragrunt" "${RED}" "安裝失敗"
         fi
     else
+        already_count="$((already_count + 1))"
         print_msg "安裝 terragrunt" "${YELLOW}" "已安裝"
-        var="$((var - 1))"
     fi
 fi
 
-# 手動安裝 AWS CLI
-if [[ " ${manual_install_array[@]} " =~ " awscli " ]]; then
-    install_pkg "aws" \
-        "curl -s 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip' && unzip -qq awscliv2.zip && ./aws/install && rm -rf aws awscliv2.zip" \
-        "command_exists aws" \
-        "安裝 AWS CLI"
+# 手動安裝 Terraform (HashiCorp 官方 APT Repository)
+if [[ " ${manual_install_array[@]} " =~ " terraform " ]]; then
+    num="$((num + 1))"
+    if ! command_exists terraform; then
+        source /etc/os-release
+        curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+        echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com ${UBUNTU_CODENAME} main" | sudo tee /etc/apt/sources.list.d/hashicorp.list >/dev/null
+        sudo apt update -qq
+        if sudo apt install -y terraform -qq; then
+            changed_count="$((changed_count + 1))"
+            print_msg "安裝 Terraform" "${GREEN}" "安裝成功"
+        else
+            failed_count="$((failed_count + 1))"
+            print_msg "安裝 Terraform" "${RED}" "安裝失敗"
+        fi
+    else
+        already_count="$((already_count + 1))"
+        print_msg "安裝 Terraform" "${YELLOW}" "已安裝"
+    fi
 fi
 
 # 手動安裝 Google Cloud SDK
 if [[ " ${manual_install_array[@]} " =~ " gcloud " ]]; then
     install_pkg "gcloud" \
-        "echo 'deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main' > /etc/apt/sources.list.d/google-cloud-sdk.list && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && apt update -qq && apt install -y google-cloud-sdk -qq" \
+        "curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --yes --dearmor -o /usr/share/keyrings/cloud.google.gpg && echo 'deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main' | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list >/dev/null && sudo apt update -qq && sudo apt install -y google-cloud-sdk -qq" \
         "command_exists gcloud" \
         "安裝 Google Cloud SDK"
 fi
@@ -217,7 +390,7 @@ fi
 # 手動安裝 Google Chrome
 if [[ " ${manual_install_array[@]} " =~ " google-chrome " ]]; then
     install_pkg "google-chrome" \
-        "wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && apt install -y ./google-chrome-stable_current_amd64.deb -qq && rm google-chrome-stable_current_amd64.deb" \
+        "wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && sudo apt install -y ./google-chrome-stable_current_amd64.deb -qq && rm -f google-chrome-stable_current_amd64.deb" \
         "command_exists google-chrome" \
         "安裝 Google Chrome"
 fi
@@ -226,18 +399,21 @@ fi
 install_pkg "slidev" "npm install -g @slidev/cli" "command_exists slidev" "安裝 npm slidev"
 
 # 安裝 helm diff
-install_pkg "helm-diff" "helm plugin install https://github.com/databus23/helm-diff" "helm plugin list | grep -q -w 'diff'" "安裝 helm diff"
+install_pkg "helm-diff" "helm plugin install https://github.com/databus23/helm-diff --verify=false" "command_exists helm && helm plugin list | grep -q -w 'diff'" "安裝 helm diff"
 
 # 安裝 oh-my-zsh
-var="$((var + 1))"
 num="$((num + 1))"
-if [ ! -f "$HOME/.zshrc" ]; then
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-    sed -i 's/ZSH_THEME=.*/ZSH_THEME="clean"/g' "$HOME"/.zshrc
-    print_msg "安裝 oh-my-zsh (clean 主題)" "${GREEN}" "安裝成功"
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    if sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended; then
+        changed_count="$((changed_count + 1))"
+        print_msg "安裝 oh-my-zsh (clean 主題)" "${GREEN}" "安裝成功"
+    else
+        failed_count="$((failed_count + 1))"
+        print_msg "安裝 oh-my-zsh (clean 主題)" "${RED}" "安裝失敗"
+    fi
 else
+    already_count="$((already_count + 1))"
     print_msg "安裝 oh-my-zsh (clean 主題)" "${YELLOW}" "已安裝"
-    var="$((var - 1))"
 fi
 
 # 安裝 Zsh 插件
@@ -250,84 +426,61 @@ zsh_plugins=(
 )
 
 for plugin in "${!zsh_plugins[@]}"; do
-    var="$((var + 1))"
     num="$((num + 1))"
     if [ ! -d "${ZSH_CUSTOM}/plugins/${plugin}" ]; then
-        git clone "${zsh_plugins[$plugin]}" "${ZSH_CUSTOM}/plugins/${plugin}" >/dev/null 2>&1
-        print_msg "安裝 zsh 插件 ($plugin)" "${GREEN}" "安裝成功"
+        if git clone "${zsh_plugins[$plugin]}" "${ZSH_CUSTOM}/plugins/${plugin}" >/dev/null 2>&1; then
+            changed_count="$((changed_count + 1))"
+            print_msg "安裝 zsh 插件 ($plugin)" "${GREEN}" "安裝成功"
+        else
+            failed_count="$((failed_count + 1))"
+            print_msg "安裝 zsh 插件 ($plugin)" "${RED}" "安裝失敗"
+        fi
     else
+        already_count="$((already_count + 1))"
         print_msg "安裝 zsh 插件 ($plugin)" "${YELLOW}" "已安裝"
-        var="$((var - 1))"
     fi
 done
 
-# 設定 Zsh 插件
-var="$((var + 1))"
-num="$((num + 1))"
-ZSH_PLUGINS_LINE="plugins=(git aws fzf-tab zsh-autosuggestions zsh-syntax-highlighting autojump)"
-if ! grep -q "$ZSH_PLUGINS_LINE" "$HOME"/.zshrc; then
-    sed -i "s/^plugins=(.*)/${ZSH_PLUGINS_LINE}/" "$HOME"/.zshrc
-    print_msg "設定 zsh 插件" "${GREEN}" "設定成功"
-else
-    print_msg "設定 zsh 插件" "${YELLOW}" "已設定"
-    var="$((var - 1))"
-fi
-
-
 # 設定 gke-gcloud-auth-plugin
 if [[ " ${manual_install_array[@]} " =~ " gcloud " ]]; then
-    install_pkg "gke-gcloud-auth-plugin" "apt install -y google-cloud-sdk-gke-gcloud-auth-plugin -qq" "command_exists gke-gcloud-auth-plugin" "安裝 gke-gcloud-auth-plugin"
+    install_pkg "gke-gcloud-auth-plugin" "sudo apt install -y google-cloud-sdk-gke-gcloud-auth-plugin -qq" "command_exists gke-gcloud-auth-plugin" "安裝 gke-gcloud-auth-plugin"
 fi
 
 # 設定 terraform 自動補全
 if command_exists terraform; then
-    append_to_file "autoload -U +X bashcompinit && bashcompinit" "$HOME/.zshrc" "啟用 bashcompinit for zsh"
-    terraform -install-autocomplete &>/dev/null
+    terraform -install-autocomplete &>/dev/null || true
 fi
 
-# 設定 aws 自動補全
-if command_exists aws; then
-    AWS_COMPLETER_PATH=$(which aws_completer 2>/dev/null || echo "/usr/local/bin/aws_completer")
-    append_to_file "complete -C $AWS_COMPLETER_PATH aws" "$HOME/.bash_profile" "設定 aws 自動補全"
-fi
-
-# 設定常用 alias (kubectl)
-append_to_file "alias k=\"kubectl\"" "$HOME/.bash_profile" "設定 alias (kubectl)"
-
-# 設定常用 alias (kubens)
-append_to_file "alias kns=\"kubens\"" "$HOME/.bash_profile" "設定 alias (kubens)"
-
-# 設定常用 alias (kubectx)
-append_to_file "alias ktx=\"kubectx\"" "$HOME/.bash_profile" "設定 alias (kubectx)"
-
-# 設定 .zshrc
-append_to_file "source \$HOME/.bash_profile" "$HOME/.zshrc" "設定 .zshrc"
-
-# 設定 PS1
-PS1_LINE='export PS1='\''%{$fg[$NCOLOR]%}%B%n%b%{$reset_color%}:%{$fg[blue]%}%B%c/%b%{$reset_color%} $(git_prompt_info)%(!.#.$) '\'''
-append_to_file "$PS1_LINE" "$HOME/.zshrc" "設定 PS1"
+# 同步 .zshrc
+sync_zshrc
 
 # 設定 .vimrc (vim option 向右單字切換)
 append_to_file ":map f w" "$HOME/.vimrc" "設定 .vimrc"
 
 # 變更預設 shell 為 zsh
-var="$((var + 1))"
 num="$((num + 1))"
 if [ "$SHELL" != "$(which zsh)" ]; then
-    chsh -s "$(which zsh)"
-    printf "%2d _ 變更預設 shell 為 zsh : [${GREEN}設定成功${NC}]\n" "$num"
-    echo -e "\n${YELLOW}請登出後重新登入以使用 zsh${NC}"
+    if chsh -s "$(which zsh)"; then
+        changed_count="$((changed_count + 1))"
+        printf "%2d _ 變更預設 shell 為 zsh : [${GREEN}設定成功${NC}]\n" "$num"
+        echo -e "\n${YELLOW}請登出後重新登入以使用 zsh${NC}"
+    else
+        failed_count="$((failed_count + 1))"
+        printf "%2d _ 變更預設 shell 為 zsh : [${RED}設定失敗${NC}]\n" "$num"
+    fi
 else
+    already_count="$((already_count + 1))"
     printf "%2d _ 變更預設 shell 為 zsh : [${YELLOW}已設定${NC}]\n" "$num"
-    var="$((var - 1))"
 fi
 
 #=========================================
 # 輸出統計
 
 printf "\n=====================================統計輸出===================================\n"
-success_rate=$(echo "scale=2; $var/$num*100" | bc -l)
-echo -e "安裝 + 設定套件成功數 / 安裝 + 設定套件總數 / 成功率：( ${GREEN}$var${NC} ${BLUE}/ $num / ${RED}$success_rate%${NC} )"
+successful_steps=$((changed_count + already_count))
+success_rate=$(echo "scale=2; $successful_steps/$num*100" | bc -l)
+echo -e "成功 / 已有 / 失敗 / 總數：( ${GREEN}$changed_count${NC} / ${YELLOW}$already_count${NC} / ${RED}$failed_count${NC} / ${BLUE}$num${NC} )"
+echo -e "整體完成率：( ${GREEN}$success_rate%${NC} )"
 echo -e "\n完成！請執行以下命令來套用設定："
 echo -e "${GREEN}source ~/.zshrc${NC}"
 echo -e "或登出後重新登入以完全載入新環境"
