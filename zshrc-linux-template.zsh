@@ -1,70 +1,83 @@
 # =====================================================================
-# 1. Oh My Zsh 基礎路徑與外掛宣告
-# (必須在 source oh-my-zsh.sh 之前！)
+# Oh My Zsh 基本設定
 # =====================================================================
-# Oh My Zsh 的安裝路徑
 export ZSH="$HOME/.oh-my-zsh"
+export ZSH_THEME="clean"
 
-# Zsh 主題設定 (clean 是一個簡潔的好選擇)
-ZSH_THEME="clean"
+plugins=(
+  git
+  aws
+  kubectl
+  terraform
+  fzf-tab
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  autojump
+  kube-ps1
+)
 
-# 宣告你要啟用的所有外掛 (已根據您的 install-linux.sh 調整)
-# 'git' 是基本, 'aws' 提供aws-cli補全, 'fzf-tab' 'zsh-autosuggestions' 'zsh-syntax-highlighting' 提升效率, 'autojump' 快速跳轉目錄
-plugins=(git aws fzf-tab zsh-autosuggestions zsh-syntax-highlighting autojump)
-
-# 載入 Oh My Zsh 核心 (這行會去讀取上面的 plugins 和 theme)
-source $ZSH/oh-my-zsh.sh
+source "$ZSH/oh-my-zsh.sh"
 
 # =====================================================================
-# 2. 外部工具初始化與環境變數
+# PATH 與常用工具
 # =====================================================================
-# 啟用 autojump (適用於 apt 安裝的路徑)
-if [ -f /usr/share/autojump/autojump.sh ]; then
-  . /usr/share/autojump/autojump.sh
+typeset -U path PATH
+path=(
+  "$HOME/.local/bin"
+  /usr/local/bin
+  /snap/bin
+  $path
+)
+export PATH
+
+if [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
+  source /usr/share/doc/fzf/examples/key-bindings.zsh
 fi
 
-# 啟用 fzf 的 zsh 整合
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+if [ -f /usr/share/doc/fzf/examples/completion.zsh ]; then
+  source /usr/share/doc/fzf/examples/completion.zsh
+fi
 
-# 如果您有安裝 Go，設定 Go 的工作路徑
-export GOPATH=$HOME/go
-export PATH=$PATH:$GOPATH/bin
+[ -f "$HOME/.fzf.zsh" ] && source "$HOME/.fzf.zsh"
+
+# 保留 ls 顏色，但取消特殊資料夾的底色顯示
+export LS_COLORS="${LS_COLORS}:st=01;34:ow=01;34:tw=01;34"
 
 # =====================================================================
-# 3. Cloud / K8s / Terraform 相關設定與自動補全
+# Completion
 # =====================================================================
-# 啟用 bash completion 相容模式 (terraform/aws 等工具需要)
 autoload -U +X bashcompinit && bashcompinit
 
-# 設定 kubectl 自動補全
-if command -v kubectl &> /dev/null; then
+if command -v kubectl >/dev/null 2>&1; then
   source <(kubectl completion zsh)
 fi
 
-# 設定 terraform 自動補全 (自動尋找 terraform 路徑)
-if command -v terraform &> /dev/null; then
-  complete -o nospace -C "$(which terraform)" terraform
+if command -v terraform >/dev/null 2>&1; then
+  complete -o nospace -C "$(command -v terraform)" terraform
 fi
 
-# 設定 aws-cli 自動補全 (自動尋找 aws_completer 路徑)
-if command -v aws_completer &> /dev/null; then
-  complete -C "$(which aws_completer)" aws
+if [ -f "$HOME/.terragrunt-completion.zsh" ]; then
+  source "$HOME/.terragrunt-completion.zsh"
 fi
 
 # =====================================================================
-# 4. 個人專屬快捷指令 (Aliases)
+# Prompt 與偏好設定
 # =====================================================================
-alias k='kubectl'
-alias ktx='kubectx'
-alias kns='kubens'
-alias tf='terraform'
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
+setopt promptsubst
+
+if (( ${+functions[kube_ps1]} )); then
+  RPROMPT='$(kube_ps1)'
+fi
+
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=5000
+SAVEHIST=5000
+setopt hist_ignore_dups
+setopt share_history
 
 # =====================================================================
-# 5. 提示字元 (Prompt) 設定
+# Aliases
 # =====================================================================
-# 一個簡潔且包含 git 資訊的提示字元
-# 格式: user@hostname:~/current/path (git-branch) $
-PROMPT='%{$fg[yellow]%}%n%{$reset_color%}@%{$fg[blue]%}%m%{$reset_color%}:%{$fg[cyan]%}%~%{$reset_color%} $(git_prompt_info)%(!.#.$) '
+alias k="kubectl"
+alias kns="kubens"
+alias ktx="kubectx"
