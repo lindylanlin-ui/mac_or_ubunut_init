@@ -201,7 +201,7 @@ remove_line_if_present() {
 ensure_homebrew_owner() {
   local path
   for path in /opt/homebrew /opt/homebrew/share/zsh /opt/homebrew/share/zsh/site-functions /opt/homebrew/var/homebrew/locks; do
-    if [ -e "$path" ]; then
+    if [ -e "$path" ] && [ ! -O "$path" ] && sudo -n true 2>/dev/null; then
       sudo chown -R "$(whoami)" "$path"
     fi
   done
@@ -343,6 +343,7 @@ install_casks() {
 configure_oh_my_zsh_plugins() {
   local plugins=("git")
   local plugin_line
+  local tmp_file
 
   if is_enabled "${ENABLE_FZF_TAB:-false}"; then
     plugins+=("fzf-tab")
@@ -359,7 +360,25 @@ configure_oh_my_zsh_plugins() {
 
   plugin_line="plugins=(${plugins[*]})"
   if grep -q '^plugins=' "$HOME/.zshrc" 2>/dev/null; then
-    sed -i -e "s/^plugins=(.*/${plugin_line}/" "$HOME/.zshrc"
+    tmp_file=$(mktemp)
+    awk -v plugin_line="$plugin_line" '
+      BEGIN { replacing = 0 }
+      /^plugins=\(/ {
+        print plugin_line
+        if ($0 !~ /\)[[:space:]]*$/) {
+          replacing = 1
+        }
+        next
+      }
+      replacing {
+        if ($0 ~ /\)[[:space:]]*$/) {
+          replacing = 0
+        }
+        next
+      }
+      { print }
+    ' "$HOME/.zshrc" >"$tmp_file"
+    mv "$tmp_file" "$HOME/.zshrc"
   else
     echo "$plugin_line" >>"$HOME/.zshrc"
   fi
@@ -616,6 +635,7 @@ install_engineer_features() {
     success_count="$((success_count + 1))"
     num="$((num + 1))"
     if command -v kubecolor >/dev/null 2>&1; then
+      grep -qF -- 'alias kubectl="kubecolor"' "$HOME/.zshrc" 2>/dev/null || echo 'alias kubectl="kubecolor"' >>"$HOME/.zshrc"
       print_msg "安裝 kubecolor + 設定 alias" "${YELLOW}" "已安裝"
       record_already "安裝 kubecolor + 設定 alias"
       already_count="$((already_count + 1))"
@@ -649,7 +669,7 @@ install_engineer_features() {
   if is_enabled "${ENABLE_HELM_DIFF:-false}"; then
     install_optional_feature "安裝 helm diff" \
       "helm diff version >/dev/null 2>&1" \
-      "helm plugin install https://github.com/databus23/helm-diff" \
+      "helm plugin install https://github.com/databus23/helm-diff --verify=false" \
       "! command -v helm >/dev/null 2>&1"
   fi
 
