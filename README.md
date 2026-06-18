@@ -1,188 +1,250 @@
-# Mac OS 一鍵安裝環境與程式の腳本
+# mac-install
 
-## 說明：<br>
+用 shell script 快速建立 macOS / Ubuntu / Zorin 的常用環境。
 
-使用 shell script 來安裝 MacOS 環境與套件，並且會自動安裝一些常用的軟體(cask)，以及設定一些常用的環境變數 (這些都是我常用的，可以根據個人需求自行調整)。
+目前已拆成多個入口腳本，重點是把「一般日常使用」和「工程師工作環境」分開，避免一支腳本同時安裝太多不相干的東西。
 
-1. 首先要使用該腳本，請先將該檔案給 clone 下來，並且調整該 .sh 檔案可執行權限。
-2. 檢查該腳本要安裝的內容是否為你所需要的，若不是，請自行修改。
-3. 需要修改的設定參數，都放置在該腳本最上方，主要會修改的是 `brew_tap_array`、`brew_array`、`brew_cask`，該參數分別代表：
-   1. `brew_tap_array`：安裝不再 homebrew 的第三方套件，例如：`hashicorp/tap`。
-   2. `brew_array`：需要安裝的套件，例如：`k9s`。
-   3. `brew_cask`：需要安裝的應用程式，例如：`notion`。
-4. 修改完畢後，就可以執行該腳本，腳本會自動安裝所有的套件與應用程式，並且會自動設定環境變數
+## 腳本總覽
 
-<br>
+### macOS
 
-![圖片](https://raw.githubusercontent.com/880831ian/mac-install-kit/master/images/1.webp)
+- [install.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install.sh)
+  日常版。適合一般使用者或只需要基礎 shell 強化的人。
+- [install-engineer.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install-engineer.sh)
+  工程師版。包含日常版內容，再加上 Kubernetes / Cloud / Terraform 相關工具。
+- [install-mac-common.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install-mac-common.sh)
+  macOS 共用核心。通常不直接執行。
 
-<br>
+### Linux
 
-## 套件清單：<br>
+- [install-linux.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install-linux.sh)
+  Ubuntu / Zorin 日常版安裝腳本。
+- [install-linux-engineer.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install-linux-engineer.sh)
+  Ubuntu / Zorin 工程師版安裝腳本。
+- [install-linux-common.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install-linux-common.sh)
+  Linux 共用核心。通常不直接執行。
 
-### 命令列工具 (brew_array) - 35 個套件
-
-
-| 套件名稱        | 用途             | 套件名稱       | 用途                |
-| --------------- | ---------------- | -------------- | ------------------- |
-| zsh             | Shell 環境       | kubernetes-cli | Kubernetes 管理工具 |
-| bash-completion | Bash 自動補全    | kustomize      | Kubernetes 配置管理 |
-| watch           | 定期執行命令     | helm           | Kubernetes 套件管理 |
-| terraform       | 基礎架構即程式碼 | terragrunt     | Terraform 封裝工具  |
-| kubectx         | Kubernetes 切換  | jq             | JSON 處理工具       |
-| okteto          | K8s 開發工具     | k9s            | K8s TUI 管理介面    |
-| shellcheck      | Shell 腳本檢查   | autojump       | 目錄快速跳轉        |
-| hugo            | 靜態網站生成器   | wget           | 檔案下載工具        |
-| telnet          | 網路測試工具     | tree           | 目錄樹狀顯示        |
-| k6              | 負載測試工具     | fzf            | 模糊搜尋工具        |
-| kor             | K8s 資源清理     | kubent         | K8s API 棄用檢查    |
-| k8sgpt          | K8s AI 診斷      | k3d            | 輕量級 Kubernetes   |
-| pv              | 進度顯示工具     | dialog         | 對話框工具          |
-| ipcalc          | IP 計算工具      | yq             | YAML 處理工具       |
-| helmfile        | Helm 批次管理    | awscli         | AWS 命令列工具      |
-| granted         | AWS 帳號切換     | node           | Node.js             |
-| go              | Go 語言          | webp           | WebP 圖片工具       |
-| argocd          | GitOps 部署工具  | vault          | 密鑰管理工具        |
-
-### GUI 應用程式 (brew_cask) - 20 個應用
+## 推薦使用情境
 
 
-| 應用程式           | 用途           | 應用程式        | 用途         |
-| ------------------ | -------------- | --------------- | ------------ |
-| 1password          | 密碼管理器     | google-chrome   | 瀏覽器       |
-| chatgpt-atlas      | ChatGPT 客戶端 | iterm2          | 終端機       |
-| visual-studio-code | 程式編輯器     | gitkraken       | Git GUI 工具 |
-| postman            | API 測試工具   | docker          | 容器化平台   |
-| telegram-desktop   | 即時通訊       | spotify         | 音樂串流     |
-| raycast            | 啟動器工具     | logi-options+   | 羅技設備管理 |
-| notion             | 筆記工具       | notion-calendar | 行事曆       |
-| google-cloud-sdk   | GCP 工具       | openvpn-connect | VPN 工具     |
-| chatgpt            | ChatGPT 桌面版 | amazon-q        | AWS AI 助理  |
-| drawio             | 流程圖工具     | kiro            | 其他工具     |
+| 使用情境                      | 推薦腳本                    | 原因                                                                    |
+| ----------------------------- | --------------------------- | ----------------------------------------------------------------------- |
+| 一般日常使用的 Mac            | `install.sh`                | 保留 Homebrew、iTerm2、oh-my-zsh 與基礎工具，不會安裝過多工程師專用工具 |
+| 工程師工作用的 Mac            | `install-engineer.sh`       | 除了日常環境外，還會補齊 Kubernetes、Cloud、Terraform 相關工具與設定    |
+| Ubuntu / Zorin 一般日常使用   | `install-linux.sh`          | 安裝 Linux 日常環境與基礎 GUI / shell 設定，不會帶入太多工程師專用工具  |
+| Ubuntu / Zorin 工程師工作環境 | `install-linux-engineer.sh` | 會再補上 Kubernetes、Terraform、GCloud、Helm 類工具與設定               |
+| 不確定該用哪個 mac 腳本       | `install.sh`                | 日常版風險較低，安裝內容比較精簡，適合先從這版開始                      |
 
-<br>
+## 使用方式
 
-## 自訂套件清單：<br>
-
-### 新增套件
-
-1. **新增命令列工具**：在 `brew_array` 中加入套件名稱
-
-   ```bash
-   brew_array=("zsh" "bash-completion" ... "你要加的套件名稱")
-   ```
-2. **新增 GUI 應用程式**：在 `brew_cask` 中加入應用程式名稱
-
-   ```bash
-   brew_cask=("1password" "google-chrome" ... "你要加的應用程式名稱")
-   ```
-3. **查詢套件名稱**：
-
-   ```bash
-   # 搜尋命令列工具
-   brew search 套件名稱
-
-   # 搜尋 GUI 應用程式
-   brew search --cask 應用程式名稱
-   ```
-
-### 移除套件
-
-直接從 `brew_array` 或 `brew_cask` 中刪除不需要的套件名稱即可。
-
-<br>
-
-## 移除已安裝套件：<br>
-
-### 移除命令列工具
+### macOS 日常版
 
 ```bash
-# 移除單一套件
-brew uninstall 套件名稱
-
-# 移除多個套件
-brew uninstall 套件1 套件2 套件3
-
-# 範例：移除 hugo 和 telnet
-brew uninstall hugo telnet
+chmod +x install.sh
+./install.sh
 ```
 
-### 移除 GUI 應用程式
+### macOS 工程師版
 
 ```bash
-# 移除應用程式（需加 --cask）
-brew uninstall --cask 應用程式名稱
-
-# 範例：移除 Spotify
-brew uninstall --cask spotify
-
-# 完全移除（包括設定檔）
-brew uninstall --cask --zap spotify
+chmod +x install-engineer.sh
+./install-engineer.sh
 ```
 
-### 清理系統
+### Linux 日常版
 
 ```bash
-# 清理下載的安裝檔案快取
-brew cleanup
-
-# 查看可移除的依賴項
-brew autoremove --dry-run
-
-# 移除不再需要的依賴
-brew autoremove
+chmod +x install-linux.sh
+./install-linux.sh
 ```
 
-<br>
-
-## iTerm2 設定：<br>
-
-本腳本會自動匯入 iTerm2 配置檔，預設使用 `new_tuffy_iterm2_setting.json`。
-
-### 使用不同的配置檔
-
-修改 `install.sh` 中的 `PROFILE_FILE` 變數（第 322 行）：
+### Linux 工程師版
 
 ```bash
-PROFILE_FILE="你的配置檔名.json"
+chmod +x install-linux-engineer.sh
+./install-linux-engineer.sh
 ```
 
-可選配置檔：
+## macOS 版本差異
 
-- `new_tuffy_iterm2_setting.json` - 整合版（大視窗 + Nerd Font）
-- `Tuffy.json` - 原始 Tuffy 配置
-- `pin-yi.json` - 原始 pin-yi 配置
+### 日常版 install.sh
+
+會安裝這類內容：
+
+- Homebrew 本體
+- 基礎 CLI 工具：`zsh`、`bash-completion`、`jq`、`shellcheck`、`wget`、`telnet`、`tree`、`fzf`、`pv`、`dialog`、`yq`、`webp`、`autojump`
+- GUI App：`google-chrome`、`iterm2`、`visual-studio-code`、`raycast`、`openvpn-connect`、`wireguard`、`drawio`
+- shell 強化：`oh-my-zsh`、`fzf-tab`、`zsh-autosuggestions`、`zsh-syntax-highlighting`
+- 設定項：`PS1 prompt`、`.vimrc` 設定、iTerm2 profile 匯入
+
+### 工程師版 install-engineer.sh
+
+在日常版基礎上，另外會安裝或設定：
+
+- Kubernetes / Cloud / IaC 工具
+- `helm diff`
+- `kubecolor`
+- `gke-gcloud-auth-plugin`
+- `slidev`
+- `terraform` / `vault` / `aws` autocomplete
+- `kubectl` / `kubens` / `kubectx` alias
+
+## Linux 版本差異
+
+### 日常版 install-linux.sh
+
+會安裝這類內容：
+
+- 基礎 CLI 工具：`zsh`、`bash-completion`、`jq`、`shellcheck`、`wget`、`telnet`、`tree`、`fzf`、`pv`、`dialog`、`webp`
+- GUI / 桌面工具：`code`、`drawio`、`google-chrome`
+- VPN / 網路：`wireguard`、`openvpn`、`network-manager-openvpn-gnome`
+- shell 強化：`oh-my-zsh`、`fzf-tab`、`zsh-autosuggestions`、`zsh-syntax-highlighting`
+
+### 工程師版 install-linux-engineer.sh
+
+在日常版基礎上，另外會安裝或設定：
+
+- `kubectl`、`helm`、`kubectx`
+- `terraform`、`terragrunt`
+- `gcloud`
+- `k9s`、`kustomize`
+- `aws-cli`
+- `helm diff`
+- `slidev`
+- `gke-gcloud-auth-plugin`
+- `autojump`
+
+## Log 與執行結果
+
+所有腳本都會自動建立 `logs/` 資料夾。
+
+log 位置：
+
+- macOS 日常版：`logs/install-mac-daily-時間戳.log`
+- macOS 工程師版：`logs/install-mac-engineer-時間戳.log`
+- Linux 日常版：`logs/install-linux-daily-時間戳.log`
+- Linux 工程師版：`logs/install-linux-engineer-時間戳.log`
+
+腳本執行結束後，畫面會直接列出：
+
+- 本次安裝成功
+- 原本已安裝或已設定
+- 略過項目
+- 找不到套件來源
+- 安裝或設定失敗
+
+如果安裝失敗，log 內會保留錯誤摘要。
+
+## 自訂安裝內容
+
+### macOS
+
+如果你只想調整要安裝哪些 Homebrew 套件或 App，優先看入口腳本最上方：
+
+- [install.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install.sh)
+- [install-engineer.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install-engineer.sh)
+
+主要變數：
+
+- `brew_tap_array`
+- `brew_array`
+- `brew_cask`
+
+主要功能開關：
+
+- `ENABLE_OH_MY_ZSH`
+- `ENABLE_FZF_TAB`
+- `ENABLE_ZSH_AUTOSUGGESTIONS`
+- `ENABLE_ZSH_SYNTAX_HIGHLIGHTING`
+- `ENABLE_AUTOJUMP`
+- `ENABLE_PS1`
+- `ENABLE_VIMRC`
+- `ENABLE_ITERM2_PROFILE`
+- `ENABLE_KUBECOLOR`
+- `ENABLE_SLIDEV`
+- `ENABLE_HELM_DIFF`
+- `ENABLE_GKE_GCLOUD_AUTH_PLUGIN`
+- `ENABLE_TERRAFORM_AUTOCOMPLETE`
+- `ENABLE_VAULT_AUTOCOMPLETE`
+- `ENABLE_AWS_AUTOCOMPLETE`
+- `ENABLE_K8S_ALIASES`
+
+原則上：
+
+- 只改日常版，就編輯 `install.sh`
+- 只改工程師版，就編輯 `install-engineer.sh`
+- 不建議直接改 `install-mac-common.sh`，除非你要調整共用執行邏輯
+
+### Linux
+
+Linux 版主要修改：
+
+- `apt_prereq_array`
+- `apt_array`
+- `snap_array`
+- `snap_classic_array`
+- `manual_install_array`
+- `unsupported_app_array`
+- `ENABLE_ENGINEER_FEATURES`
+- `ENABLE_AUTOJUMP`
+- `ENABLE_SLIDEV`
+- `ENABLE_HELM_DIFF`
+
+## iTerm2 設定
+
+macOS 腳本會匯入 [new_tuffy_iterm2_setting.json](/Users/tuffy330_lin/tuffy_temp_data/mac-install/new_tuffy_iterm2_setting.json)。
+
+目前這份 profile 已調整成較可攜版本：
+
+- `Working Directory` 不再綁定特定使用者路徑
+- 字型改成較通用的 `Menlo-Regular 16`
+
+如果要換成別的 JSON，請修改 [install-mac-common.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install-mac-common.sh) 內 `configure_iterm2_profile` 使用的檔名。
 
 ### 匯出自己的 iTerm2 設定
 
-1. [ ]  開啟 iTerm2
-2. [ ]  進入 **iTerm2 → Preferences** (⌘,)
-3. [ ]  切換到 **Profiles** 標籤
-4. [ ]  點擊左下角 **Other Actions...** (⋯)
-5. [ ]  選擇 **Save Profile as JSON...**
-6. [ ]  存檔後放到此專案目錄，並修改 `PROFILE_FILE` 變數
+1. 開啟 iTerm2
+2. 進入 `iTerm2 -> Preferences`
+3. 切換到 `Profiles`
+4. 點左下角 `Other Actions...`
+5. 選 `Save Profile as JSON...`
+6. 把檔案放到本專案目錄，再調整腳本引用
 
-<br>
+## 查詢與移除套件
 
-## 備註：<br>
+### 查詢
 
-1. 需要查詢能夠安裝的套件與應用程式，可以到 [brew.sh](https://brew.sh/index_zh-tw) 查詢。
-2. 查看已安裝 brew_tap_array 的套件，可以使用 `brew tap`。
-3. 查看已安裝 brew_array 的套件，可以使用 `brew list`。
-4. 查看已安裝 brew_cask 的應用程式，可以使用 `brew list --cask`。
-5. 搜尋特定套件是否已安裝，可以使用 `brew list | grep 套件名稱`。
+```bash
+brew search 套件名稱
+brew search --cask 應用程式名稱
+brew tap
+brew list
+brew list --cask
+```
 
-<br>
+### 移除 CLI 套件
 
-## 排除錯誤：<br>
+```bash
+brew uninstall 套件名稱
+```
 
-由於該腳本是 For 給新電腦要設定環境時的一鍵安裝腳本，若以你已經用其他方式安裝過相同的程式或套件，可能會遇到以下圖片錯誤。
+### 移除 GUI App
 
-當我們遇到時，可以使用以下方式來解決，我們這邊用 docker 為例，我先使用網站的安裝檔案來安裝 docker，先從應用程式中刪除 docker，改用腳本來跑，會看到有紅字的錯誤訊息說 `Error: It seems there is already a Binary at 'XXX'.`，代表雖然把程式本身刪除，但他對應的檔案還在，所以我們要把它們都刪除，才能重新安裝。
+```bash
+brew uninstall --cask 應用程式名稱
+brew uninstall --cask --zap 應用程式名稱
+```
 
-![img](https://i.imgur.com/dcMLOpE.png)
+### 清理
 
-docker 的對應檔案有這些：<br>
-(超級多，所以建議一開始就使用 shell script 來安裝，不要用網站的安裝檔案來安裝)
+```bash
+brew cleanup
+brew autoremove --dry-run
+brew autoremove
+```
 
-![img](https://i.imgur.com/wY5z8oC.png)
+## 備註
+
+- macOS 可安裝套件可到 `brew.sh` 查詢
+- Linux 腳本主要針對 Ubuntu / Zorin
+- 第一次執行建議先看入口腳本上方的陣列與 `ENABLE_*` 開關是否符合需求

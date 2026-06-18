@@ -402,7 +402,7 @@
     "Alpha Component" : 1,
     "Green Component" : 0.73333334922790527
   },
-  "Non Ascii Font" : "Monaco 12",
+  "Non Ascii Font" : "Menlo-Regular 16",
   "Ansi 6 Color (Dark)" : {
     "Green Component" : "0.5960785",
     "Red Component" : "0.02352941",
@@ -416,7 +416,7 @@
     "Green Component" : 0.92681378126144409
   },
   "Custom Directory" : "No",
-  "Working Directory" : "\/Users\/tuffy330_lin",
+  "Working Directory" : "~",
   "ASCII Anti Aliased" : true,
   "Shortcut" : "",
   "Mouse Reporting" : true,
@@ -454,7 +454,7 @@
     "Alpha Component" : 1,
     "Green Component" : 0.73333334922790527
   },
-  "Normal Font" : "MesloLGS-NF-Regular 16",
+  "Normal Font" : "Menlo-Regular 16",
   "Unlimited Scrollback" : true,
   "Treat Option as Alt" : true,
   "Ansi 12 Color (Light)" : {
