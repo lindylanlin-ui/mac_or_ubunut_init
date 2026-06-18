@@ -1,0 +1,22 @@
+1.
+vim .git/config
+
+[alias]
+    line = log --oneline --decorate --all --graph --color --pretty=format:'%C(dim cyan)%h%Creset -%C(bold magenta)%d%C(reset) %s %C(green)(%cd) %C(bold blue)<%an>%Creset' --date=short
+    lg = log --oneline --decorate --graph --color --pretty=format:'%C(dim cyan)%h%Creset -%C(bold magenta)%d%C(reset) %s %C(green)(%cd) %C(bold blue)<%an>%Creset' --date=short
+
+2.
+vim ~/.gitconfig
+
+[user]
+        name = {{UserName}}
+        email = {{UserName}}@{{domain}}
+[color]
+        ui = true
+[alias]
+        line = log --oneline --decorate --all --graph --color --pretty=format:'%C(dim cyan)%h%Creset -%C(bold magenta)%d%C(reset) %s %C(green)(%cd) %C(bold blue)<%an>%Creset' --date=short
+        lg = log --oneline --decorate --graph --color --pretty=format:'%C(dim cyan)%h%Creset -%C(bold magenta)%d%C(reset) %s %C(green)(%cd) %C(bold blue)<%an>%Creset' --date=short
+[core]
+        editor = vim
+[http]
+        cookiefile = /home/{{UserName}}/.gitcookies
