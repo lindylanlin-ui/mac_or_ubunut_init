@@ -7,10 +7,15 @@
 # brew_array=("zsh" "bash-completion" "watch" "kubernetes-cli" "kustomize" "helm" "hashicorp/tap/terraform" "terragrunt" "kubectx" "jq" "okteto" "k9s" "shellcheck" "autojump" "hugo" "wget" "telnet" "tree" "k6" "fzf" "kor" "kubent" "k8sgpt" "k3d" "pv" "dialog" "ipcalc" "yq" "helmfile" "awscli" "common-fate/granted/granted" "node" "go" "webp" "argocd" "hashicorp/tap/vault") # 套件
 # brew_cask=("1password" "google-chrome" "chatgpt-atlas" "iterm2" "visual-studio-code" "gitkraken" "postman" "docker" "telegram-desktop" "spotify" "raycast" "logi-options+" "notion" "notion-calendar" "google-cloud-sdk" "openvpn-connect" "chatgpt" "amazon-q" "drawio" "kiro") # 視窗程式
 
-# tuffy使用
-brew_tap_array=("hashicorp/tap" "k8sgpt-ai/k8sgpt" "common-fate/granted")
-brew_array=("zsh" "bash-completion" "watch" "kubernetes-cli" "kustomize" "helm" "hashicorp/tap/terraform" "terragrunt" "kubectx" "jq" "k9s" "shellcheck" "wget" "telnet" "tree" "k6" "fzf" "kubent" "pv" "dialog" "ipcalc" "yq" "helmfile" "node" "go" "webp") # 套件
-brew_cask=("google-chrome" "iterm2" "visual-studio-code" "docker" "raycast" "notion" "google-cloud-sdk" "openvpn-connect" "drawio") # 視窗程式
+# tuffy 工作使用
+#brew_tap_array=("hashicorp/tap" "k8sgpt-ai/k8sgpt" "common-fate/granted")
+#brew_array=("zsh" "bash-completion" "watch" "kubernetes-cli" "kustomize" "helm" "hashicorp/tap/terraform" "terragrunt" "kubectx" "jq" "k9s" "shellcheck" "wget" "telnet" "tree" "k6" "fzf" "kubent" "pv" "dialog" "ipcalc" "yq" "helmfile" "node" "go" "webp") # 套件
+#brew_cask=("google-chrome" "iterm2" "visual-studio-code" "docker" "raycast" "notion" "google-cloud-sdk" "openvpn-connect" "drawio") # 視窗程式
+
+# tuffy一般使用
+brew_tap_array=()
+brew_array=("zsh" "bash-completion" "jq" "shellcheck" "wget" "telnet" "tree" "fzf" "pv" "dialog" "yq" "webp") # 套件
+brew_cask=("google-chrome" "iterm2" "visual-studio-code" "raycast" "openvpn-connect" "wireguard" "drawio") # 視窗程式
 
 # 精簡版 - 不含 K8s/Cloud 工具 (約 2-3 GB)
 # brew_tap_array=()
