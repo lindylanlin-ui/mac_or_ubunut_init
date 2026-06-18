@@ -207,23 +207,68 @@ ensure_homebrew_owner() {
   done
 }
 
-install_homebrew_if_needed() {
-  local brew_path
+detect_homebrew_prefix() {
+  if [ -x /opt/homebrew/bin/brew ]; then
+    printf '/opt/homebrew'
+  elif [ -x /usr/local/bin/brew ]; then
+    printf '/usr/local'
+  elif [ "$(uname -m)" = "arm64" ]; then
+    printf '/opt/homebrew'
+  else
+    printf '/usr/local'
+  fi
+}
+
+load_homebrew_env() {
+  local brew_prefix="$1"
+
+  if [ -x "${brew_prefix}/bin/brew" ]; then
+    eval "$("${brew_prefix}/bin/brew" shellenv)"
+    return 0
+  fi
+
+  return 1
+}
+
+require_homebrew() {
+  if command -v brew >/dev/null 2>&1 || load_homebrew_env "$(detect_homebrew_prefix)"; then
+    return 0
+  fi
 
   success_count="$((success_count + 1))"
   num="$((num + 1))"
-  if [ "$(uname -a | awk -F " " '{print $(NF-1)}' | grep 'X86')" ]; then
-    brew_path="/usr/local"
-  else
-    brew_path="/opt"
+  print_msg "確認 Homebrew 環境" "${RED}" "找不到 brew"
+  record_failure "確認 Homebrew 環境" "Homebrew 未安裝成功或 PATH 尚未載入"
+  failed_count="$((failed_count + 1))"
+  success_count="$((success_count - 1))"
+  return 1
+}
+
+install_homebrew_if_needed() {
+  local brew_prefix
+  local brew_shellenv_line
+
+  success_count="$((success_count + 1))"
+  num="$((num + 1))"
+  brew_prefix="$(detect_homebrew_prefix)"
+  if [ "$brew_prefix" = "/opt/homebrew" ]; then
     ensure_homebrew_owner
   fi
 
   if ! command -v brew >/dev/null 2>&1; then
-    append_line_if_missing "export PATH=${brew_path}/homebrew/bin:\$PATH" "$HOME/.bash_profile" "設定 Homebrew PATH"
+    brew_shellenv_line="eval \"\$(${brew_prefix}/bin/brew shellenv)\""
+    append_line_if_missing "$brew_shellenv_line" "$HOME/.zprofile" "設定 Homebrew PATH (.zprofile)"
+    append_line_if_missing "$brew_shellenv_line" "$HOME/.bash_profile" "設定 Homebrew PATH (.bash_profile)"
     if run_logged_cmd "安裝 Homebrew" "/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""; then
-      print_msg "安裝 Homebrew" "${GREEN}" "安裝成功"
-      record_success "安裝 Homebrew"
+      if load_homebrew_env "$brew_prefix"; then
+        print_msg "安裝 Homebrew" "${GREEN}" "安裝成功"
+        record_success "安裝 Homebrew"
+      else
+        print_msg "安裝 Homebrew" "${RED}" "安裝後找不到 brew"
+        record_failure "安裝 Homebrew" "brew shellenv 載入失敗"
+        failed_count="$((failed_count + 1))"
+        success_count="$((success_count - 1))"
+      fi
     else
       print_msg "安裝 Homebrew" "${RED}" "安裝失敗"
       record_failure "安裝 Homebrew" "Homebrew install script 執行失敗"
@@ -231,6 +276,7 @@ install_homebrew_if_needed() {
       success_count="$((success_count - 1))"
     fi
   else
+    load_homebrew_env "$brew_prefix"
     print_msg "安裝 Homebrew" "${YELLOW}" "已安裝"
     record_already "安裝 Homebrew"
     already_count="$((already_count + 1))"
@@ -752,6 +798,11 @@ run_mac_install() {
   echo -e "安裝記錄檔: ${LOG_FILE}"
 
   install_homebrew_if_needed
+  if ! require_homebrew; then
+    print_summary
+    return 1
+  fi
+
   install_taps
   install_formulas
   install_casks
