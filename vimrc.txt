@@ -1,5 +1,30 @@
+" =======================================================
+" ~/.vimrc
+" 用途：
+"   個人 Vim 基本設定，包含：
+"   1. 顏色與游標高亮
+"   2. 搜尋與編輯行為
+"   3. 自訂 statusline
+"   4. 常用快捷鍵切換功能
+"
+" 使用方法：
+"   1. 重新載入設定
+"      :source ~/.vimrc
+"   2. 查看目前快捷鍵是否生效
+"      在一般模式或插入模式按下下列快捷鍵：
+"      Ctrl-n  切換滑鼠模式
+"      Ctrl-b  切換文字 / 二進位模式
+"      Ctrl-j  將檔案編碼切成 UTF-8，並設為 Unix 換行
+"      Ctrl-t  將 Tab 轉成空白
+"      Ctrl-l  切換自動換行
+"      Ctrl-f  切換完整模式 / 簡潔模式
+"   3. 若修改後未生效
+"      關閉後重新開啟 Vim，或執行 :source ~/.vimrc
+" =======================================================
+
 "#######################################################
-" Color
+" 顏色與游標高亮設定
+" 啟用 256 色、配色主題，並高亮目前游標所在列與欄。
 set t_Co=256
 colo torte
 set cursorline
@@ -9,30 +34,40 @@ hi CursorLine cterm=none ctermbg=DarkMagenta ctermfg=White
 hi CursorColumn cterm=none ctermbg=DarkMagenta ctermfg=White
 
 "#######################################################
+" 基本編輯與搜尋設定
+" syntax enable：開啟語法高亮
+" ruler：顯示游標位置
+" hlsearch：高亮搜尋結果
 syntax enable
 set ruler
 set hlsearch
 hi Search cterm=reverse ctermbg=none ctermfg=none
 
+" history：保留較多指令歷史
+" expandtab：按下 Tab 時改用空白
+" mouse=：預設停用滑鼠，搭配快捷鍵手動切換
 set history=500
 set expandtab
 set mouse=
 
 
 "#######################################################
-"開啟/關閉vim的忽略大小寫搜尋
+" 搜尋時預設忽略大小寫；若關鍵字含大寫則自動改成區分大小寫
 set ignorecase
 set smartcase
 
 
 "#######################################################
-" statusline
+" 自訂 statusline
+" 顯示完整路徑、編碼、換行格式、檔案類型、大小與游標位置。
 set laststatus=2
 set statusline=%#filepath#[%{expand('%:p')}]%#filetype#[%{strlen(&fenc)?&fenc:&enc},\ %{&ff},\ %{strlen(&filetype)?&filetype:'plain'}]%#filesize#%{FileSize()}%{IsBinary()}%=%#position#%c,%l/%L\ [%3p%%]
 hi filepath cterm=none ctermbg=238 ctermfg=40
 hi filetype cterm=none ctermbg=238 ctermfg=45
 hi filesize cterm=none ctermbg=238 ctermfg=225
 hi position cterm=none ctermbg=238 ctermfg=228
+
+" 若目前為 binary 模式，於 statusline 顯示 [Binary]
 function IsBinary()
     if (&binary == 0)
         return ""
@@ -40,6 +75,8 @@ function IsBinary()
         return "[Binary]"
     endif
 endfunction
+
+" 依檔案大小自動顯示 B / KB / MB，空檔案顯示 [Empty]
 function FileSize()
     let bytes = getfsize(expand("%:p"))
     if bytes <= 0
@@ -56,8 +93,10 @@ endfunction
 
 
 "#######################################################
-" shortcut
-" Toggle mouse
+" 快捷鍵與功能函式
+
+" Ctrl-n：切換滑鼠模式
+" 一般模式與插入模式都可使用。
 map <C-n> :call SwitchMouseMode()<CR>
 map! <C-n> <Esc>:call SwitchMouseMode()<CR>
 function SwitchMouseMode()
@@ -69,7 +108,9 @@ function SwitchMouseMode()
         echo "Mouse is enabled."
     endif
 endfunction
-" Toggle text/binary
+
+" Ctrl-b：切換文字模式 / 二進位模式
+" binary 模式下會關閉行尾換行字元(eol)。
 map <C-b> :call SwitchTextBinaryMode()<CR>
 map! <C-b> <Esc>:call SwitchTextBinaryMode()<CR>
 function SwitchTextBinaryMode()
@@ -83,7 +124,9 @@ function SwitchTextBinaryMode()
         echo "Switch to text mode."
     endif
 endfunction
-" To utf-8 file
+
+" Ctrl-j：將目前檔案設定為 UTF-8 編碼，並改為 Unix 換行格式
+" 適合整理來自不同平台的文字檔。
 map <C-j> :call ToUTF8()<CR>
 map! <C-j> <Esc>:call ToUTF8()<CR>
 function ToUTF8()
@@ -95,14 +138,18 @@ function ToUTF8()
     endif
     let &ff="unix"
 endfunction
-" Convert tab to spaces
+
+" Ctrl-t：把 Tab 重新展開為空白
+" 依目前 tabstop / shiftwidth 等設定套用 retab。
 map <C-t> :call TabToSpaces()<CR>
 map! <C-t> <Esc>:call TabToSpaces()<CR>
 function TabToSpaces()
     retab
     echo "Convert tab to spaces."
 endfunction
-" Toggle line breaking
+
+" Ctrl-l：切換自動換行
+" wrap 開啟時會依視窗寬度折行顯示。
 map <C-l> :call SwitchLineBreakingMode()<CR>
 map! <C-l> <Esc>:call SwitchLineBreakingMode()<CR>
 function SwitchLineBreakingMode()
@@ -114,7 +161,10 @@ function SwitchLineBreakingMode()
         echo "Switch to one line mode."
     endif
 endfunction
-" Switch to full/simple
+
+" Ctrl-f：切換完整模式 / 簡潔模式
+" 完整模式：滑鼠、行號、自動縮排、單行不折行
+" 簡潔模式：停用滑鼠、隱藏行號、停用 cindent、開啟折行
 map <C-f> :call SwitchFullSimpleMode()<CR>
 map! <C-f> <Esc>:call SwitchFullSimpleMode()<CR>
 function SwitchFullSimpleMode()
@@ -132,4 +182,3 @@ function SwitchFullSimpleMode()
         echo "Switch to full mode.(mouse, number, cindent, nowrap)"
     endif
 endfunction
-
