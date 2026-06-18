@@ -139,6 +139,25 @@ run_logged_cmd() {
   return 1
 }
 
+run_interactive_logged_cmd() {
+  local title="$1"
+  local cmd="$2"
+  local log_file
+  local status
+
+  log_file=$(mktemp)
+  bash -lc "$cmd" 2>&1 | tee "$log_file"
+  status="${PIPESTATUS[0]}"
+  if [ "$status" -eq 0 ]; then
+    rm -f "$log_file"
+    return 0
+  fi
+
+  append_log_excerpt "$title" "$log_file"
+  rm -f "$log_file"
+  return "$status"
+}
+
 print_item_list() {
   local title="$1"
   local color="$2"
@@ -259,7 +278,8 @@ install_homebrew_if_needed() {
     brew_shellenv_line="eval \"\$(${brew_prefix}/bin/brew shellenv)\""
     append_line_if_missing "$brew_shellenv_line" "$HOME/.zprofile" "設定 Homebrew PATH (.zprofile)"
     append_line_if_missing "$brew_shellenv_line" "$HOME/.bash_profile" "設定 Homebrew PATH (.bash_profile)"
-    if run_logged_cmd "安裝 Homebrew" "/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""; then
+    echo "   Homebrew 安裝器可能會要求輸入密碼或按 Enter 繼續。"
+    if run_interactive_logged_cmd "安裝 Homebrew" "/bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""; then
       if load_homebrew_env "$brew_prefix"; then
         print_msg "安裝 Homebrew" "${GREEN}" "安裝成功"
         record_success "安裝 Homebrew"
