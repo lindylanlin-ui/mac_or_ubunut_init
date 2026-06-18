@@ -8,20 +8,20 @@
 
 ### macOS
 
-- [install.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install.sh)
+- `install.sh`
   日常版。適合一般使用者或只需要基礎 shell 強化的人。
-- [install-engineer.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install-engineer.sh)
+- `install-engineer.sh`
   工程師版。包含日常版內容，再加上 Kubernetes / Cloud / Terraform 相關工具。
-- [install-mac-common.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install-mac-common.sh)
+- `install-mac-common.sh`
   macOS 共用核心。通常不直接執行。
 
 ### Linux
 
-- [install-linux.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install-linux.sh)
+- `install-linux.sh`
   Ubuntu / Zorin 日常版安裝腳本。
-- [install-linux-engineer.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install-linux-engineer.sh)
+- `install-linux-engineer.sh`
   Ubuntu / Zorin 工程師版安裝腳本。
-- [install-linux-common.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install-linux-common.sh)
+- `install-linux-common.sh`
   Linux 共用核心。通常不直接執行。
 
 ## 推薦使用情境
@@ -141,8 +141,8 @@ log 位置：
 
 如果你只想調整要安裝哪些 Homebrew 套件或 App，優先看入口腳本最上方：
 
-- [install.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install.sh)
-- [install-engineer.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install-engineer.sh)
+- `install.sh`
+- `install-engineer.sh`
 
 主要變數：
 
@@ -192,14 +192,14 @@ Linux 版主要修改：
 
 ## iTerm2 設定
 
-macOS 腳本會匯入 [new_tuffy_iterm2_setting.json](/Users/tuffy330_lin/tuffy_temp_data/mac-install/new_tuffy_iterm2_setting.json)。
+macOS 腳本會匯入 `new_tuffy_iterm2_setting.json`。
 
 目前這份 profile 已調整成較可攜版本：
 
 - `Working Directory` 不再綁定特定使用者路徑
 - 字型改成較通用的 `Menlo-Regular 16`
 
-如果要換成別的 JSON，請修改 [install-mac-common.sh](/Users/tuffy330_lin/tuffy_temp_data/mac-install/install-mac-common.sh) 內 `configure_iterm2_profile` 使用的檔名。
+如果要換成別的 JSON，請修改 `install-mac-common.sh` 內 `configure_iterm2_profile` 使用的檔名。
 
 ### 匯出自己的 iTerm2 設定
 

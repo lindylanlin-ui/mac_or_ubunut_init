@@ -37,7 +37,7 @@ export PATH="/usr/local/bin:$PATH"
 # =====================================================================
 # 4. 個人專屬快捷指令 (Aliases)
 # =====================================================================
-#alias iap-tunnel="/Users/tuffy/CY/tuffy_Mac/work_tool/iap-tunnel.sh"
-#alias jump-border="/Users/tuffy/CY/tuffy_Mac/work_tool/jump_border_tool.sh"
+#alias iap-tunnel="/path/to/your/iap-tunnel.sh"
+#alias jump-border="/path/to/your/jump-border-tool.sh"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
