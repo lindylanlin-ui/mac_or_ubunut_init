@@ -571,6 +571,51 @@ finalize_shell() {
   fi
 }
 
+install_and_configure_yazi() {
+  local source_dir="$SCRIPT_DIR/yazi"
+  local config_dir="$HOME/.config/yazi"
+  local file
+
+  num="$((num + 1))"
+  if ! command_exists yazi; then
+    if [ ! -x "$HOME/.cargo/bin/cargo" ]; then
+      if run_logged_cmd "安裝 Rust（Yazi 建置工具）" "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal"; then
+        changed_count="$((changed_count + 1))"
+      else
+        failed_count="$((failed_count + 1))"
+        print_msg "安裝 Yazi" "${RED}" "Rust 安裝失敗"
+        record_failure "安裝 Yazi" "無法安裝 Rust"
+        return
+      fi
+    fi
+
+    if run_logged_cmd "安裝 Yazi" "\"$HOME/.cargo/bin/cargo\" install --force yazi-build"; then
+      changed_count="$((changed_count + 1))"
+      print_msg "安裝 Yazi" "${GREEN}" "安裝成功"
+      record_success "安裝 Yazi（官方 Cargo 安裝器）"
+    else
+      failed_count="$((failed_count + 1))"
+      print_msg "安裝 Yazi" "${RED}" "安裝失敗"
+      record_failure "安裝 Yazi" "cargo install yazi-build 失敗"
+      return
+    fi
+  else
+    already_count="$((already_count + 1))"
+    print_msg "安裝 Yazi" "${YELLOW}" "已安裝"
+    record_already "安裝 Yazi"
+  fi
+
+  mkdir -p "$config_dir"
+  for file in yazi.linux.toml keymap.toml theme.toml init.lua shell.zsh; do
+    cp "$source_dir/$file" "$config_dir/${file/yazi.linux.toml/yazi.toml}"
+  done
+  append_to_file '[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"' "$HOME/.zshrc" "設定 Rust PATH（Yazi）"
+  append_to_file '[ -f "$HOME/.config/yazi/shell.zsh" ] && source "$HOME/.config/yazi/shell.zsh"' "$HOME/.zshrc" "啟用 Yazi 離開後切換目錄"
+  changed_count="$((changed_count + 1))"
+  print_msg "設定 Yazi" "${GREEN}" "設定檔已同步"
+  record_success "設定 Yazi（主題、快捷鍵、cwd wrapper）"
+}
+
 print_summary() {
   local successful_steps
   local success_rate
@@ -651,5 +696,6 @@ run_linux_install() {
   print_unsupported_apps
   install_shell_features
   finalize_shell
+  install_and_configure_yazi
   print_summary
 }

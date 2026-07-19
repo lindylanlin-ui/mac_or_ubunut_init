@@ -1,0 +1,1 @@
+-- Intentionally minimal: use Yazi's built-in previewers and behaviour.

@@ -1,0 +1,91 @@
+# Tokyo Night-inspired Yazi theme with a high-contrast cursor.
+[app]
+overall = { bg = "#1a1b26" }
+
+[mgr]
+cwd = { fg = "#7aa2f7", bold = true }
+find_keyword = { fg = "#e0af68", bold = true, italic = true, underline = true }
+find_position = { fg = "#bb9af7", bg = "reset", bold = true }
+symlink_target = { fg = "#565f89", italic = true }
+marker_copied = { fg = "#9ece6a", bg = "#9ece6a" }
+marker_cut = { fg = "#f7768e", bg = "#f7768e" }
+marker_marked = { fg = "#7dcfff", bg = "#7dcfff" }
+marker_selected = { fg = "#e0af68", bg = "#e0af68" }
+count_copied = { fg = "#1a1b26", bg = "#9ece6a", bold = true }
+count_cut = { fg = "#1a1b26", bg = "#f7768e", bold = true }
+count_selected = { fg = "#1a1b26", bg = "#e0af68", bold = true }
+border_symbol = "│"
+border_style = { fg = "#3b4261" }
+
+[indicator]
+parent = { fg = "#3b4261" }
+current = { fg = "#1a1b26", bg = "#e0af68", bold = true }
+preview = { fg = "#bb9af7" }
+padding = { open = "▶", close = "◀" }
+
+[tabs]
+active = { fg = "#1a1b26", bg = "#7aa2f7", bold = true }
+inactive = { fg = "#565f89", bg = "#24283b" }
+sep_inner = { open = "", close = "" }
+sep_outer = { open = "", close = "" }
+
+[mode]
+normal_main = { fg = "#1a1b26", bg = "#7aa2f7", bold = true }
+normal_alt = { fg = "#7aa2f7", bg = "#24283b" }
+select_main = { fg = "#1a1b26", bg = "#9ece6a", bold = true }
+select_alt = { fg = "#9ece6a", bg = "#24283b" }
+unset_main = { fg = "#1a1b26", bg = "#f7768e", bold = true }
+unset_alt = { fg = "#f7768e", bg = "#24283b" }
+
+[status]
+overall = { fg = "#c0caf5", bg = "#1a1b26" }
+sep_left = { open = "", close = "" }
+sep_right = { open = "", close = "" }
+perm_type = { fg = "#7aa2f7" }
+perm_read = { fg = "#e0af68" }
+perm_write = { fg = "#f7768e" }
+perm_exec = { fg = "#9ece6a" }
+perm_sep = { fg = "#565f89" }
+progress_label = { fg = "#c0caf5", bold = true }
+progress_normal = { fg = "#7aa2f7", bg = "#3b4261" }
+progress_error = { fg = "#f7768e", bg = "#3b4261" }
+
+[input]
+border = { fg = "#7aa2f7" }
+title = { fg = "#c0caf5" }
+value = { fg = "#e0af68" }
+selected = { reversed = true }
+
+[pick]
+border = { fg = "#7aa2f7" }
+active = { fg = "#bb9af7", bold = true }
+inactive = { fg = "#565f89" }
+
+[confirm]
+border = { fg = "#f7768e" }
+title = { fg = "#c0caf5", bold = true }
+body = { fg = "#c0caf5" }
+list = { fg = "#c0caf5" }
+btn_yes = { fg = "#1a1b26", bg = "#9ece6a", bold = true }
+btn_no = { fg = "#1a1b26", bg = "#f7768e", bold = true }
+btn_labels = [ "Confirm", "Cancel" ]
+
+[filetype]
+rules = [
+  { url = "*", is = "orphan", fg = "#f7768e", crossed = true },
+  { url = "*", is = "exec", fg = "#9ece6a", bold = true },
+  { url = "*/", fg = "#7aa2f7", bold = true },
+  { mime = "text/*", fg = "#c0caf5" },
+  { url = "*", fg = "#c0caf5" },
+]
+
+[icon]
+prepend_dirs = [
+  { name = ".config", text = "", fg = "#7aa2f7" },
+  { name = ".git", text = "", fg = "#ff9e64" },
+  { name = "Desktop", text = "", fg = "#7aa2f7" },
+  { name = "Documents", text = "󰈙", fg = "#7dcfff" },
+  { name = "Downloads", text = "", fg = "#9ece6a" },
+  { name = "Pictures", text = "", fg = "#bb9af7" },
+  { name = "Music", text = "", fg = "#7dcfff" },
+]

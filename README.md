@@ -75,6 +75,7 @@ chmod +x install-linux-engineer.sh
 - 基礎 CLI 工具：`zsh`、`bash-completion`、`jq`、`shellcheck`、`wget`、`telnet`、`tree`、`fzf`、`pv`、`dialog`、`yq`、`webp`、`autojump`
 - GUI App：`google-chrome`、`iterm2`、`visual-studio-code`、`raycast`、`openvpn-connect`、`wireguard`、`drawio`
 - shell 強化：`oh-my-zsh`、`fzf-tab`、`zsh-autosuggestions`、`zsh-syntax-highlighting`
+- Yazi：安裝 Yazi 與預覽依賴，套用 Tokyo Night 主題、清晰游標、快捷鍵與退出後切換目錄功能
 - 設定項：`PS1 prompt`、`.vimrc` 設定、iTerm2 profile 匯入
 
 ### 工程師版 install-engineer.sh
@@ -99,6 +100,7 @@ chmod +x install-linux-engineer.sh
 - GUI / 桌面工具：`code`、`drawio`、`google-chrome`
 - VPN / 網路：`wireguard`、`openvpn`、`network-manager-openvpn-gnome`
 - shell 強化：`oh-my-zsh`、`fzf-tab`、`zsh-autosuggestions`、`zsh-syntax-highlighting`
+- Yazi：透過官方 Cargo 安裝新版 Yazi，並套用和 macOS 相同的主題、快捷鍵與 cwd wrapper
 
 ### 工程師版 install-linux-engineer.sh
 
@@ -200,6 +202,16 @@ macOS 腳本會匯入 `new_tuffy_iterm2_setting.json`。
 - 字型改成較通用的 `Menlo-Regular 16`
 
 如果要換成別的 JSON，請修改 `install-mac-common.sh` 內 `configure_iterm2_profile` 使用的檔名。
+
+## Yazi 設定
+
+Yazi 的可攜設定放在 `yazi/`，會由 macOS 與 Linux 的共用安裝流程自動同步到 `~/.config/yazi/`。
+
+- macOS 使用 `yazi/yazi.macos.toml`，以 Finder 和系統預設 App 開啟檔案。
+- Ubuntu / Zorin 使用 `yazi/yazi.linux.toml`，以 `xdg-open` 開啟檔案。
+- `yazi/shell.zsh` 讓直接輸入 `yazi` 或 `y` 後，按小寫 `q` 離開時，終端機保留在最後瀏覽的資料夾。
+
+若圖示顯示為方塊，請在終端機選擇 Nerd Font；macOS 日常／工程師腳本會安裝 Meslo Nerd Font。
 
 ### 匯出自己的 iTerm2 設定
 

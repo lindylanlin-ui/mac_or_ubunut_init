@@ -659,6 +659,28 @@ configure_vimrc() {
   append_line_if_missing ":map f w" "$HOME/.vimrc" "設定 .vimrc"
 }
 
+configure_yazi() {
+  local source_dir="$SCRIPT_DIR/yazi"
+  local config_dir="$HOME/.config/yazi"
+  local file
+
+  num="$((num + 1))"
+  if ! command -v yazi >/dev/null 2>&1; then
+    print_msg "設定 Yazi" "${YELLOW}" "略過，未安裝 yazi"
+    record_skipped "設定 Yazi" "yazi 指令不存在"
+    skipped_count="$((skipped_count + 1))"
+    return
+  fi
+
+  mkdir -p "$config_dir"
+  for file in yazi.macos.toml keymap.toml theme.toml init.lua shell.zsh; do
+    cp "$source_dir/$file" "$config_dir/${file/yazi.macos.toml/yazi.toml}"
+  done
+  append_line_if_missing '[ -f "$HOME/.config/yazi/shell.zsh" ] && source "$HOME/.config/yazi/shell.zsh"' "$HOME/.zshrc" "啟用 Yazi 離開後切換目錄"
+  print_msg "設定 Yazi" "${GREEN}" "設定檔已同步"
+  record_success "設定 Yazi（主題、快捷鍵、cwd wrapper）"
+}
+
 configure_iterm2_profile() {
   local profile_dir="$HOME/Library/Application Support/iTerm2/DynamicProfiles"
   local profile_file="$SCRIPT_DIR/new_tuffy_iterm2_setting.json"
@@ -848,6 +870,7 @@ run_mac_install() {
   cleanup_zshrc_bash_profile_source
   configure_ps1
   configure_vimrc
+  configure_yazi
   configure_iterm2_profile
   print_summary
 }

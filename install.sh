@@ -6,8 +6,8 @@ PROFILE_TITLE="mac-install 日常版"
 PROFILE_DESCRIPTION="本腳本會安裝一般使用者日常使用的 mac 環境與 shell 設定。"
 
 brew_tap_array=()
-brew_array=("zsh" "bash-completion" "jq" "shellcheck" "wget" "telnet" "tree" "fzf" "pv" "dialog" "yq" "webp" "autojump")
-brew_cask=("google-chrome" "iterm2" "visual-studio-code" "raycast" "openvpn-connect" "drawio")
+brew_array=("zsh" "bash-completion" "jq" "shellcheck" "wget" "telnet" "tree" "fzf" "pv" "dialog" "yq" "webp" "autojump" "yazi" "ffmpeg" "sevenzip" "poppler" "fd" "ripgrep" "zoxide" "resvg" "imagemagick")
+brew_cask=("google-chrome" "iterm2" "visual-studio-code" "raycast" "openvpn-connect" "drawio" "font-meslo-lg-nerd-font")
 
 ENABLE_OH_MY_ZSH=true
 ENABLE_FZF_TAB=true
