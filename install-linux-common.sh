@@ -609,8 +609,39 @@ install_and_configure_yazi() {
   for file in yazi.linux.toml keymap.toml theme.toml init.lua shell.zsh; do
     cp "$source_dir/$file" "$config_dir/${file/yazi.linux.toml/yazi.toml}"
   done
-  append_to_file '[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"' "$HOME/.zshrc" "設定 Rust PATH（Yazi）"
-  append_to_file '[ -f "$HOME/.config/yazi/shell.zsh" ] && source "$HOME/.config/yazi/shell.zsh"' "$HOME/.zshrc" "啟用 Yazi 離開後切換目錄"
+
+  num="$((num + 1))"
+  if command_exists fdfind; then
+    mkdir -p "$HOME/.local/bin"
+    if ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"; then
+      changed_count="$((changed_count + 1))"
+      print_msg "設定 fd 供 Yazi 搜尋使用" "${GREEN}" "設定成功"
+      record_success "設定 fd 供 Yazi 搜尋使用"
+    else
+      failed_count="$((failed_count + 1))"
+      print_msg "設定 fd 供 Yazi 搜尋使用" "${RED}" "設定失敗"
+      record_failure "設定 fd 供 Yazi 搜尋使用" "無法建立 $HOME/.local/bin/fd"
+    fi
+  else
+    skipped_count="$((skipped_count + 1))"
+    print_msg "設定 fd 供 Yazi 搜尋使用" "${YELLOW}" "略過，未安裝 fdfind"
+    record_skipped "設定 fd 供 Yazi 搜尋使用" "fdfind 指令不存在"
+  fi
+
+  append_to_file 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.profile" "加入 ~/.local/bin 到 PATH（profile）"
+  append_to_file 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.bashrc" "加入 ~/.local/bin 到 PATH（bash）"
+  append_to_file 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.zshrc" "加入 ~/.local/bin 到 PATH（zsh）"
+  append_to_file '[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"' "$HOME/.bashrc" "設定 Rust PATH（bash / Yazi）"
+  append_to_file '[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"' "$HOME/.zshrc" "設定 Rust PATH（zsh / Yazi）"
+  append_to_file '[ -f "$HOME/.config/yazi/shell.zsh" ] && source "$HOME/.config/yazi/shell.zsh"' "$HOME/.bashrc" "啟用 Yazi 離開後切換目錄（bash）"
+  if grep -Eq '^[[:space:]]*function[[:space:]]+yazi[[:space:]]*\(\)' "$HOME/.zshrc" 2>/dev/null; then
+    num="$((num + 1))"
+    skipped_count="$((skipped_count + 1))"
+    print_msg "啟用 Yazi 離開後切換目錄（zsh）" "${YELLOW}" "略過，~/.zshrc 已定義 function yazi()"
+    record_skipped "啟用 Yazi 離開後切換目錄（zsh）" "~/.zshrc 已定義 function yazi()"
+  else
+    append_to_file '[ -f "$HOME/.config/yazi/shell.zsh" ] && source "$HOME/.config/yazi/shell.zsh"' "$HOME/.zshrc" "啟用 Yazi 離開後切換目錄（zsh）"
+  fi
   changed_count="$((changed_count + 1))"
   print_msg "設定 Yazi" "${GREEN}" "設定檔已同步"
   record_success "設定 Yazi（主題、快捷鍵、cwd wrapper）"

@@ -676,7 +676,13 @@ configure_yazi() {
   for file in yazi.macos.toml keymap.toml theme.toml init.lua shell.zsh; do
     cp "$source_dir/$file" "$config_dir/${file/yazi.macos.toml/yazi.toml}"
   done
-  append_line_if_missing '[ -f "$HOME/.config/yazi/shell.zsh" ] && source "$HOME/.config/yazi/shell.zsh"' "$HOME/.zshrc" "啟用 Yazi 離開後切換目錄"
+  if grep -Eq '^[[:space:]]*function[[:space:]]+yazi[[:space:]]*\(\)' "$HOME/.zshrc" 2>/dev/null; then
+    print_msg "啟用 Yazi 離開後切換目錄" "${YELLOW}" "略過，~/.zshrc 已定義 function yazi()"
+    record_skipped "啟用 Yazi 離開後切換目錄" "~/.zshrc 已定義 function yazi()"
+    skipped_count="$((skipped_count + 1))"
+  else
+    append_line_if_missing '[ -f "$HOME/.config/yazi/shell.zsh" ] && source "$HOME/.config/yazi/shell.zsh"' "$HOME/.zshrc" "啟用 Yazi 離開後切換目錄"
+  fi
   print_msg "設定 Yazi" "${GREEN}" "設定檔已同步"
   record_success "設定 Yazi（主題、快捷鍵、cwd wrapper）"
 }
