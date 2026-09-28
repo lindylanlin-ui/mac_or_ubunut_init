@@ -1,263 +1,121 @@
-# mac-install
+# mac-or-ubuntu-init
 
-用 shell script 快速建立 macOS / Ubuntu / Zorin 的常用環境。
+用幾個簡單的 Shell 腳本，快速建立 macOS、Ubuntu 或 Zorin 的常用工作環境。
 
-目前已拆成多個入口腳本，重點是把「一般日常使用」和「工程師工作環境」分開，避免一支腳本同時安裝太多不相干的東西。
+## 快速開始
 
-## 腳本總覽
+先複製專案並進入目錄：
+
+```bash
+git clone <repository-url>
+cd mac_or_ubunut_init
+```
+
+接著依照作業系統和用途，選擇一個入口腳本執行。第一次使用建議先閱讀腳本開頭的套件清單與設定開關。
 
 ### macOS
 
-- `install.sh`
-  日常版。適合一般使用者或只需要基礎 shell 強化的人。
-- `install-engineer.sh`
-  工程師版。包含日常版內容，再加上 Kubernetes / Cloud / Terraform 相關工具。
-- `install-mac-common.sh`
-  macOS 共用核心。通常不直接執行。
-
-### Linux
-
-- `install-linux.sh`
-  Ubuntu / Zorin 日常版安裝腳本。
-- `install-linux-engineer.sh`
-  Ubuntu / Zorin 工程師版安裝腳本。
-- `install-linux-common.sh`
-  Linux 共用核心。通常不直接執行。
-
-## 推薦使用情境
-
-
-| 使用情境                      | 推薦腳本                    | 原因                                                                    |
-| ----------------------------- | --------------------------- | ----------------------------------------------------------------------- |
-| 一般日常使用的 Mac            | `install.sh`                | 保留 Homebrew、iTerm2、oh-my-zsh 與基礎工具，不會安裝過多工程師專用工具 |
-| 工程師工作用的 Mac            | `install-engineer.sh`       | 除了日常環境外，還會補齊 Kubernetes、Cloud、Terraform 相關工具與設定    |
-| Ubuntu / Zorin 一般日常使用   | `install-linux.sh`          | 安裝 Linux 日常環境與基礎 GUI / shell 設定，不會帶入太多工程師專用工具  |
-| Ubuntu / Zorin 工程師工作環境 | `install-linux-engineer.sh` | 會再補上 Kubernetes、Terraform、GCloud、Helm 類工具與設定               |
-| 不確定該用哪個 mac 腳本       | `install.sh`                | 日常版風險較低，安裝內容比較精簡，適合先從這版開始                      |
-
-## 使用方式
-
-### macOS 日常版
-
 ```bash
-chmod +x install.sh
-./install.sh
+# 日常版
+bash ./install.sh
+
+# 工程師版
+bash ./install-engineer.sh
 ```
 
-### macOS 工程師版
+### Ubuntu / Zorin
 
 ```bash
-chmod +x install-engineer.sh
-./install-engineer.sh
+# 日常版
+bash ./install-linux.sh
+
+# 工程師版
+bash ./install-linux-engineer.sh
 ```
 
-### Linux 日常版
+Linux 腳本會使用 `sudo`，請先確認目前帳號有 sudo 權限。所有版本都需要網路連線；macOS 會安裝或使用 Homebrew，Linux 會使用 apt、snap 及部分官方下載來源。
+
+## 該選哪個腳本？
+
+| 需求 | 入口腳本 | 內容概略 |
+| --- | --- | --- |
+| macOS 日常使用 | [`install.sh`](./install.sh) | Homebrew、Shell 工具、常用 GUI App、Yazi 與基本設定 |
+| macOS 工程師環境 | [`install-engineer.sh`](./install-engineer.sh) | 日常版，再加上 Kubernetes、Cloud、Terraform 等工具 |
+| Ubuntu / Zorin 日常使用 | [`install-linux.sh`](./install-linux.sh) | apt / snap、常用 GUI 與 Shell 工具、Yazi 與基本設定 |
+| Ubuntu / Zorin 工程師環境 | [`install-linux-engineer.sh`](./install-linux-engineer.sh) | 日常版，再加上 Kubernetes、Cloud、Terraform 等工具 |
+
+`install-mac-common.sh` 與 `install-linux-common.sh` 是共用執行邏輯，不是一般使用者的入口，請不要直接執行。
+
+## 會修改哪些設定？
+
+腳本可能會建立或更新以下使用者設定：
+
+- `~/.zshrc`、`~/.zprofile`、`~/.bash_profile` 或 `~/.bashrc`
+- `~/.vimrc`
+- `~/.config/yazi/`
+- macOS 的 iTerm2 Dynamic Profile
+
+執行前如果已有自己的 Shell 設定，建議先備份。執行完成後，重新開啟終端機，或執行：
 
 ```bash
-chmod +x install-linux.sh
-./install-linux.sh
+source ~/.zshrc
 ```
 
-### Linux 工程師版
+每次執行都會在 `logs/` 產生安裝紀錄，方便查找失敗項目。
 
-```bash
-chmod +x install-linux-engineer.sh
-./install-linux-engineer.sh
-```
+## Yazi
 
-## macOS 版本差異
+Yazi 設定放在 [`yazi/`](./yazi/)。安裝流程會依作業系統選擇設定，並同步到 `~/.config/yazi/`：
 
-### 日常版 install.sh
+- macOS：[`yazi/yazi.macos.toml`](./yazi/yazi.macos.toml)，使用 `open` 開啟檔案。
+- Linux：[`yazi/yazi.linux.toml`](./yazi/yazi.linux.toml)，使用 `xdg-open` 開啟檔案。
+- 共用主題與快捷鍵：[`theme.toml`](./yazi/theme.toml)、[`keymap.toml`](./yazi/keymap.toml)。
+- [`shell.zsh`](./yazi/shell.zsh) 讓離開 Yazi 後，終端機保留在最後瀏覽的資料夾。
 
-會安裝這類內容：
-
-- Homebrew 本體
-- 基礎 CLI 工具：`zsh`、`bash-completion`、`jq`、`shellcheck`、`wget`、`telnet`、`tree`、`fzf`、`pv`、`dialog`、`yq`、`webp`、`autojump`
-- GUI App：`google-chrome`、`iterm2`、`visual-studio-code`、`raycast`、`openvpn-connect`、`wireguard`、`drawio`
-- shell 強化：`oh-my-zsh`、`fzf-tab`、`zsh-autosuggestions`、`zsh-syntax-highlighting`
-- Yazi：安裝 Yazi 與預覽/搜尋依賴（包含 `fd` 與 `ripgrep`），套用 Tokyo Night 主題、清晰游標、快捷鍵與退出後切換目錄功能
-- 設定項：`PS1 prompt`、`.vimrc` 設定、iTerm2 profile 匯入
-
-### 工程師版 install-engineer.sh
-
-在日常版基礎上，另外會安裝或設定：
-
-- Kubernetes / Cloud / IaC 工具
-- `helm diff`
-- `kubecolor`
-- `gke-gcloud-auth-plugin`
-- `slidev`
-- `terraform` / `vault` / `aws` autocomplete
-- `kubectl` / `kubens` / `kubectx` alias
-
-## Linux 版本差異
-
-### 日常版 install-linux.sh
-
-會安裝這類內容：
-
-- 基礎 CLI 工具：`zsh`、`bash-completion`、`jq`、`shellcheck`、`wget`、`telnet`、`tree`、`fzf`、`pv`、`dialog`、`webp`
-- GUI / 桌面工具：`code`、`drawio`、`google-chrome`
-- VPN / 網路：`wireguard`、`openvpn`、`network-manager-openvpn-gnome`
-- shell 強化：`oh-my-zsh`、`fzf-tab`、`zsh-autosuggestions`、`zsh-syntax-highlighting`
-- Yazi：透過官方 Cargo 安裝新版 Yazi，並搭配 `fd-find`、`ripgrep` 提供搜尋能力，套用和 macOS 相同的主題、快捷鍵與 cwd wrapper
-
-### 工程師版 install-linux-engineer.sh
-
-在日常版基礎上，另外會安裝或設定：
-
-- `kubectl`、`helm`、`kubectx`
-- `terraform`、`terragrunt`
-- `gcloud`
-- `k9s`、`kustomize`
-- `aws-cli`
-- `helm diff`
-- `slidev`
-- `gke-gcloud-auth-plugin`
-- `autojump`
-
-## Log 與執行結果
-
-所有腳本都會自動建立 `logs/` 資料夾。
-
-log 位置：
-
-- macOS 日常版：`logs/install-mac-daily-時間戳.log`
-- macOS 工程師版：`logs/install-mac-engineer-時間戳.log`
-- Linux 日常版：`logs/install-linux-daily-時間戳.log`
-- Linux 工程師版：`logs/install-linux-engineer-時間戳.log`
-
-腳本執行結束後，畫面會直接列出：
-
-- 本次安裝成功
-- 原本已安裝或已設定
-- 略過項目
-- 找不到套件來源
-- 安裝或設定失敗
-
-如果安裝失敗，log 內會保留錯誤摘要。
+若圖示顯示成方塊，請在終端機使用 Nerd Font；macOS 版本會安裝 Meslo Nerd Font。
 
 ## 自訂安裝內容
 
-### macOS
+通常只需要修改對應的入口腳本：
 
-如果你只想調整要安裝哪些 Homebrew 套件或 App，優先看入口腳本最上方：
+- macOS：修改 [`install.sh`](./install.sh) 或 [`install-engineer.sh`](./install-engineer.sh) 的 `brew_array`、`brew_cask` 與 `ENABLE_*` 開關。
+- Linux：修改 [`install-linux.sh`](./install-linux.sh) 或 [`install-linux-engineer.sh`](./install-linux-engineer.sh) 的 apt、snap、手動安裝清單與 `ENABLE_*` 開關。
 
-- `install.sh`
-- `install-engineer.sh`
+共用流程需要調整時，才修改 [`install-mac-common.sh`](./install-mac-common.sh) 或 [`install-linux-common.sh`](./install-linux-common.sh)。
 
-主要變數：
+## 專案檔案
 
-- `brew_tap_array`
-- `brew_array`
-- `brew_cask`
+- 安裝入口：[`install.sh`](./install.sh)、[`install-engineer.sh`](./install-engineer.sh)、[`install-linux.sh`](./install-linux.sh)、[`install-linux-engineer.sh`](./install-linux-engineer.sh)
+- macOS iTerm2 設定：[`new_tuffy_iterm2_setting.json`](./new_tuffy_iterm2_setting.json)
+- Vim 設定：[`vimrc.txt`](./vimrc.txt)
+- Shell 範本：[`zshrc-template.txt`](./zshrc-template.txt)、[`zshrc-linux-template.zsh`](./zshrc-linux-template.zsh)、[`zshrc-zorin-template.txt`](./zshrc-zorin-template.txt)
+- Git alias 範例：[`git_lg.txt`](./git_lg.txt)
 
-主要功能開關：
+以下檔案不是目前四個入口腳本的必要依賴，保留作為參考或舊版備份：[`Tuffy.json`](./Tuffy.json)、[`yazi_install_sh.zip`](./yazi_install_sh.zip)。目前 macOS 腳本使用的是 `new_tuffy_iterm2_setting.json`。
 
-- `ENABLE_OH_MY_ZSH`
-- `ENABLE_FZF_TAB`
-- `ENABLE_ZSH_AUTOSUGGESTIONS`
-- `ENABLE_ZSH_SYNTAX_HIGHLIGHTING`
-- `ENABLE_AUTOJUMP`
-- `ENABLE_PS1`
-- `ENABLE_VIMRC`
-- `ENABLE_ITERM2_PROFILE`
-- `ENABLE_KUBECOLOR`
-- `ENABLE_SLIDEV`
-- `ENABLE_HELM_DIFF`
-- `ENABLE_GKE_GCLOUD_AUTH_PLUGIN`
-- `ENABLE_TERRAFORM_AUTOCOMPLETE`
-- `ENABLE_VAULT_AUTOCOMPLETE`
-- `ENABLE_AWS_AUTOCOMPLETE`
-- `ENABLE_K8S_ALIASES`
+## 安全注意事項
 
-原則上：
+目前檢查 Git 追蹤內容，沒有發現常見的 API key、access token、密碼、私鑰或 kubeconfig。這不代表未來新增檔案時可以省略檢查，請注意：
 
-- 只改日常版，就編輯 `install.sh`
-- 只改工程師版，就編輯 `install-engineer.sh`
-- 不建議直接改 `install-mac-common.sh`，除非你要調整共用執行邏輯
+- 不要提交 `.env`、雲端憑證、SSH 私鑰、VPN 設定、`~/.kube/config` 或包含密碼的 log。
+- `logs/` 已加入 `.gitignore`；若某個敏感檔案已經被 Git 追蹤，單純加入 `.gitignore` 不會把它移出版本庫。
+- 安裝腳本會從 Homebrew、GitHub、Google、HashiCorp 等來源下載套件或安裝腳本，並可能使用 `sudo`。正式使用前請確認來源與腳本內容。
+- 推送前至少確認：
 
-### Linux
+  ```bash
+  git status --short
+  git diff --cached
+  ```
 
-Linux 版主要修改：
+若曾經把憑證提交到 GitHub，請立即撤銷／輪替憑證，並另外清理 Git 歷史；刪除檔案本身並不足夠。
 
-- `apt_prereq_array`
-- `apt_array`
-- `snap_array`
-- `snap_classic_array`
-- `manual_install_array`
-- `unsupported_app_array`
-- `ENABLE_ENGINEER_FEATURES`
-- `ENABLE_AUTOJUMP`
-- `ENABLE_SLIDEV`
-- `ENABLE_HELM_DIFF`
-
-## iTerm2 設定
-
-macOS 腳本會匯入 `new_tuffy_iterm2_setting.json`。
-
-目前這份 profile 已調整成較可攜版本：
-
-- `Working Directory` 不再綁定特定使用者路徑
-- 字型改成較通用的 `Menlo-Regular 16`
-
-如果要換成別的 JSON，請修改 `install-mac-common.sh` 內 `configure_iterm2_profile` 使用的檔名。
-
-## Yazi 設定
-
-Yazi 的可攜設定放在 `yazi/`，會由 macOS 與 Linux 的共用安裝流程自動同步到 `~/.config/yazi/`。
-
-- macOS 使用 `yazi/yazi.macos.toml`，以 Finder 和系統預設 App 開啟檔案。
-- Ubuntu / Zorin 使用 `yazi/yazi.linux.toml`，以 `xdg-open` 開啟檔案。
-- `yazi/shell.zsh` 讓直接輸入 `yazi` 或 `y` 後，按小寫 `q` 離開時，終端機保留在最後瀏覽的資料夾。
-- `s` 會用 `fd` / `fd-find` 搜尋檔名，`S` 會用 `ripgrep` 搜尋檔案內容；如果這兩個指令不在 PATH，Yazi 搜尋就不會正常工作。
-
-若圖示顯示為方塊，請在終端機選擇 Nerd Font；macOS 日常／工程師腳本會安裝 Meslo Nerd Font。
-
-### 匯出自己的 iTerm2 設定
-
-1. 開啟 iTerm2
-2. 進入 `iTerm2 -> Preferences`
-3. 切換到 `Profiles`
-4. 點左下角 `Other Actions...`
-5. 選 `Save Profile as JSON...`
-6. 把檔案放到本專案目錄，再調整腳本引用
-
-## 查詢與移除套件
-
-### 查詢
+## 常用 Homebrew 指令（macOS）
 
 ```bash
-brew search 套件名稱
-brew search --cask 應用程式名稱
-brew tap
 brew list
 brew list --cask
-```
-
-### 移除 CLI 套件
-
-```bash
-brew uninstall 套件名稱
-```
-
-### 移除 GUI App
-
-```bash
-brew uninstall --cask 應用程式名稱
-brew uninstall --cask --zap 應用程式名稱
-```
-
-### 清理
-
-```bash
+brew search <套件名稱>
+brew uninstall <套件名稱>
+brew uninstall --cask <應用程式名稱>
 brew cleanup
-brew autoremove --dry-run
-brew autoremove
 ```
-
-## 備註
-
-- macOS 可安裝套件可到 `brew.sh` 查詢
-- Linux 腳本主要針對 Ubuntu / Zorin
-- 第一次執行建議先看入口腳本上方的陣列與 `ENABLE_*` 開關是否符合需求

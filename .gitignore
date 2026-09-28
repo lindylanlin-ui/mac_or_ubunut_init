@@ -1,2 +1,14 @@
 logs/
 .DS_Store
+
+# Local credentials and private material
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+.aws/
+.kube/
+.gitcookies
