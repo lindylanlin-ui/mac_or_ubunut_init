@@ -113,6 +113,18 @@ app_exists_for_cask() {
     notion)
       [ -d "/Applications/Notion.app" ]
       ;;
+    chatgpt)
+      [ -d "/Applications/ChatGPT.app" ]
+      ;;
+    antigravity)
+      [ -d "/Applications/Antigravity.app" ]
+      ;;
+    claude)
+      [ -d "/Applications/Claude.app" ]
+      ;;
+    google-gemini)
+      [ -d "/Applications/Gemini.app" ]
+      ;;
     google-cloud-sdk)
       command -v gcloud >/dev/null 2>&1
       ;;

@@ -40,7 +40,7 @@ Linux 腳本會使用 `sudo`，請先確認目前帳號有 sudo 權限。所有�
 | 需求 | 入口腳本 | 內容概略 |
 | --- | --- | --- |
 | macOS 日常使用 | [`install.sh`](./install.sh) | Homebrew、Shell 工具、常用 GUI App、Yazi 與基本設定 |
-| macOS 工程師環境 | [`install-engineer.sh`](./install-engineer.sh) | 日常版，再加上 Kubernetes、Cloud、Terraform 等工具 |
+| macOS 工程師環境 | [`install-engineer.sh`](./install-engineer.sh) | 日常版，再加上 Kubernetes、Cloud、Terraform 與 ChatGPT、Antigravity、Claude、Gemini |
 | Ubuntu / Zorin 日常使用 | [`install-linux.sh`](./install-linux.sh) | apt / snap、常用 GUI 與 Shell 工具、Yazi 與基本設定 |
 | Ubuntu / Zorin 工程師環境 | [`install-linux-engineer.sh`](./install-linux-engineer.sh) | 日常版，再加上 Kubernetes、Cloud、Terraform 等工具 |
 
