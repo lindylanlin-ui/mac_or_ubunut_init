@@ -15,6 +15,7 @@ unsupported_app_array=()
 
 ENABLE_ENGINEER_FEATURES=false
 ENABLE_AUTOJUMP=false
+ENABLE_ZOXIDE=false
 ENABLE_SLIDEV=false
 ENABLE_HELM_DIFF=false
 ENABLE_SHELL_FEATURES=false
@@ -68,6 +69,7 @@ linux_daily_manual=(
 linux_shell_features=(
   "shell-base|Shell 基礎環境：oh-my-zsh、外掛與 zsh 設定。"
   "autojump|依常用路徑快速跳轉資料夾。"
+  "zoxide-config|啟用 zoxide 的 z 與 zi 指令。"
   "yazi|終端機檔案管理器，支援預覽與搜尋。"
   "vimrc|套用專案提供的 Vim 基本設定。"
 )
@@ -80,14 +82,23 @@ add_item() {
   eval "${array_name}+=(\"\$value\")"
 }
 
-apply_linux_daily_apt() { add_item apt_array "$1"; }
+apply_linux_daily_apt() {
+  add_item apt_array "$1"
+  if [ "$1" = "zoxide" ]; then
+    ENABLE_ZOXIDE=true
+    add_item apt_array zsh
+  fi
+}
 apply_linux_daily_snap() {
   case "$1" in
     code) add_item snap_classic_array "$1" ;;
     *) add_item snap_array "$1" ;;
   esac
 }
-apply_linux_daily_manual() { add_item manual_install_array "$1"; add_item apt_prereq_array wget; }
+apply_linux_daily_manual() {
+  add_item manual_install_array "$1"
+  add_item apt_prereq_array wget
+}
 
 apply_linux_shell_selection() {
   case "$1" in
@@ -102,6 +113,11 @@ apply_linux_shell_selection() {
       ENABLE_SHELL_SETUP=true
       add_item apt_array zsh
       add_item apt_array autojump
+      ;;
+    zoxide-config)
+      ENABLE_ZOXIDE=true
+      add_item apt_array zoxide
+      add_item apt_array zsh
       ;;
     yazi)
       ENABLE_YAZI=true

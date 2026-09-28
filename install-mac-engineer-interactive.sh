@@ -15,6 +15,7 @@ ENABLE_FZF_TAB=false
 ENABLE_ZSH_AUTOSUGGESTIONS=false
 ENABLE_ZSH_SYNTAX_HIGHLIGHTING=false
 ENABLE_AUTOJUMP=false
+ENABLE_ZOXIDE=false
 ENABLE_PS1=false
 ENABLE_VIMRC=false
 ENABLE_ITERM2_PROFILE=false
@@ -98,6 +99,7 @@ mac_shell_features=(
   "zsh-autosuggestions|依歷史指令提供輸入建議。"
   "zsh-syntax-highlighting|在輸入時標示指令語法。"
   "autojump-config|啟用 autojump 的 Zsh 外掛。"
+  "zoxide-config|啟用 zoxide 的 z 與 zi 指令。"
   "ps1|顯示使用者、路徑與 Git 狀態提示字元。"
   "vimrc|套用專案提供的 Vim 基本設定。"
   "yazi-config|同步 Yazi 主題、快捷鍵與路徑功能。"
@@ -131,6 +133,13 @@ add_brew_cask() {
   brew_cask+=("$1")
 }
 
+apply_mac_formula() {
+  apply_mac_engineer_formula "$1"
+  if [ "$1" = "zoxide" ]; then
+    ENABLE_ZOXIDE=true
+  fi
+}
+
 add_brew_tap() {
   local item
   for item in "${brew_tap_array[@]}"; do
@@ -160,6 +169,7 @@ apply_mac_shell_selection() {
     zsh-autosuggestions) ENABLE_ZSH_AUTOSUGGESTIONS=true; ENABLE_OH_MY_ZSH=true; add_brew_formula zsh ;;
     zsh-syntax-highlighting) ENABLE_ZSH_SYNTAX_HIGHLIGHTING=true; ENABLE_OH_MY_ZSH=true; add_brew_formula zsh ;;
     autojump-config) ENABLE_AUTOJUMP=true; ENABLE_OH_MY_ZSH=true; add_brew_formula zsh; add_brew_formula autojump ;;
+    zoxide-config) ENABLE_ZOXIDE=true; add_brew_formula zoxide ;;
     ps1) ENABLE_PS1=true ;;
     vimrc) ENABLE_VIMRC=true ;;
     yazi-config) ENABLE_YAZI=true; add_brew_formula yazi ;;
@@ -183,7 +193,7 @@ apply_mac_engineer_selection() {
 prepare_interactive_menu || exit 1
 
 menu_select "選擇 macOS 工程師 CLI 工具（空白鍵選取，Enter 確認）" "${mac_engineer_formulas[@]}"
-for_each_menu_selection "$MENU_SELECTIONS" apply_mac_engineer_formula
+for_each_menu_selection "$MENU_SELECTIONS" apply_mac_formula
 
 menu_select "選擇 macOS 工程師 GUI 與 AI 應用程式" "${mac_engineer_casks[@]}"
 for_each_menu_selection "$MENU_SELECTIONS" add_brew_cask

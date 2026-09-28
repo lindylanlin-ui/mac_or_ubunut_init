@@ -572,6 +572,24 @@ configure_autojump() {
   fi
 }
 
+configure_zoxide() {
+  if ! is_enabled "${ENABLE_ZOXIDE:-false}"; then
+    return
+  fi
+
+  if ! command -v zoxide >/dev/null 2>&1; then
+    success_count="$((success_count + 1))"
+    num="$((num + 1))"
+    print_msg "設定 zoxide" "${YELLOW}" "略過，未安裝 zoxide"
+    record_skipped "設定 zoxide" "zoxide 指令不存在"
+    skipped_count="$((skipped_count + 1))"
+    success_count="$((success_count - 1))"
+    return
+  fi
+
+  append_line_if_missing 'eval "$(zoxide init zsh)"' "$HOME/.zshrc" "設定 zoxide 初始化"
+}
+
 configure_terraform_autocomplete() {
   if ! is_enabled "${ENABLE_TERRAFORM_AUTOCOMPLETE:-false}"; then
     return
@@ -906,6 +924,7 @@ run_mac_install() {
   fi
 
   configure_autojump
+  configure_zoxide
   configure_terraform_autocomplete
   configure_vault_autocomplete
   configure_aws_autocomplete

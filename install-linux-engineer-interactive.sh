@@ -15,6 +15,7 @@ unsupported_app_array=()
 
 ENABLE_ENGINEER_FEATURES=true
 ENABLE_AUTOJUMP=false
+ENABLE_ZOXIDE=false
 ENABLE_SLIDEV=false
 ENABLE_HELM_DIFF=false
 ENABLE_SHELL_FEATURES=false
@@ -40,6 +41,7 @@ linux_engineer_apt=(
   "nodejs|JavaScript 執行環境。"
   "npm|Node.js 套件管理器。"
   "autojump|依常用路徑快速跳轉資料夾。"
+  "zoxide-config|啟用 zoxide 的 z 與 zi 指令。"
   "kubectx|快速切換 Kubernetes context 與 namespace。"
   "wireguard|快速且現代化的 VPN 工具。"
   "openvpn|OpenVPN 命令列 VPN 工具。"
@@ -101,7 +103,13 @@ add_item() {
   eval "${array_name}+=(\"\$value\")"
 }
 
-apply_linux_engineer_apt() { add_item apt_array "$1"; }
+apply_linux_engineer_apt() {
+  add_item apt_array "$1"
+  if [ "$1" = "zoxide" ]; then
+    ENABLE_ZOXIDE=true
+    add_item apt_array zsh
+  fi
+}
 apply_linux_engineer_snap() {
   case "$1" in
     kubectl|helm|aws-cli|code|docker) add_item snap_classic_array "$1" ;;
@@ -131,6 +139,11 @@ apply_linux_shell_selection() {
       ENABLE_SHELL_SETUP=true
       add_item apt_array zsh
       add_item apt_array autojump
+      ;;
+    zoxide-config)
+      ENABLE_ZOXIDE=true
+      add_item apt_array zoxide
+      add_item apt_array zsh
       ;;
     yazi)
       ENABLE_YAZI=true

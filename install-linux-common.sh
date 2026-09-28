@@ -588,12 +588,38 @@ install_shell_features() {
   fi
 }
 
+configure_zoxide() {
+  if ! is_enabled "${ENABLE_ZOXIDE:-false}"; then
+    return
+  fi
+
+  local file="$HOME/.zshrc"
+  local line='eval "$(zoxide init zsh)"'
+  num="$((num + 1))"
+
+  if ! command_exists zoxide; then
+    skipped_count="$((skipped_count + 1))"
+    print_msg "設定 zoxide 初始化" "${YELLOW}" "略過，未安裝 zoxide"
+    record_skipped "設定 zoxide 初始化" "zoxide 指令不存在"
+  elif grep -qF -- "$line" "$file" 2>/dev/null; then
+    already_count="$((already_count + 1))"
+    print_msg "設定 zoxide 初始化" "${YELLOW}" "已設定"
+    record_already "設定 zoxide 初始化"
+  else
+    printf '%s\n' "$line" >>"$file"
+    changed_count="$((changed_count + 1))"
+    print_msg "設定 zoxide 初始化" "${GREEN}" "設定成功"
+    record_success "設定 zoxide 初始化"
+  fi
+}
+
 finalize_shell() {
   if is_enabled "${ENABLE_VIMRC:-true}"; then
     append_to_file ":map f w" "$HOME/.vimrc" "設定 .vimrc"
   fi
 
   if ! is_enabled "${ENABLE_SHELL_SETUP:-true}"; then
+    configure_zoxide
     return
   fi
 
@@ -602,6 +628,7 @@ finalize_shell() {
   fi
 
   sync_zshrc
+  configure_zoxide
 
   num="$((num + 1))"
   if [ "$SHELL" != "$(which zsh)" ]; then

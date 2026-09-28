@@ -14,6 +14,7 @@ unsupported_app_array=("iterm2" "raycast" "openvpn-connect")
 
 ENABLE_ENGINEER_FEATURES=false
 ENABLE_AUTOJUMP=false
+ENABLE_ZOXIDE=true
 ENABLE_SLIDEV=false
 ENABLE_HELM_DIFF=false
 

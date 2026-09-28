@@ -98,6 +98,16 @@ source ~/.zshrc
 
 每次執行都會在 `logs/` 產生安裝紀錄，方便查找失敗項目。
 
+## zoxide
+
+批次版會安裝並初始化 zoxide；完成後可使用 `z` 與 `zi`。選單版請選擇 `zoxide` 套件，或在 Shell 設定中選擇「zoxide 初始化」。
+
+若已完成安裝但目前終端機尚未載入設定，執行：
+
+```bash
+source ~/.zshrc
+```
+
 ## Yazi
 
 Yazi 設定放在 [`yazi/`](./yazi/)。安裝流程會依作業系統選擇設定，並同步到 `~/.config/yazi/`：
