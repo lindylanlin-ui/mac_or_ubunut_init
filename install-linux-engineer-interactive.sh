@@ -79,6 +79,7 @@ linux_engineer_manual=(
   "google-chrome|Google Chrome 網頁瀏覽器。"
   "brave-browser|注重隱私與廣告阻擋的網頁瀏覽器。"
   "microsoft-edge|Microsoft Edge 網頁瀏覽器。"
+  "eza|更現代、支援色彩與圖示的 ls 替代工具。"
 )
 
 linux_shell_features=(
@@ -123,6 +124,7 @@ apply_linux_engineer_manual() {
   case "$1" in
     k9s) add_item apt_prereq_array jq ;;
     gcloud|terraform) add_item apt_prereq_array gnupg; add_item apt_prereq_array lsb-release; add_item apt_prereq_array software-properties-common ;;
+    eza) add_item apt_prereq_array gnupg ;;
   esac
 }
 

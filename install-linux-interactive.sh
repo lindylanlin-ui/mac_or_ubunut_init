@@ -64,6 +64,7 @@ linux_daily_manual=(
   "google-chrome|Google Chrome 網頁瀏覽器。"
   "brave-browser|注重隱私與廣告阻擋的網頁瀏覽器。"
   "microsoft-edge|Microsoft Edge 網頁瀏覽器。"
+  "eza|更現代、支援色彩與圖示的 ls 替代工具。"
 )
 
 linux_shell_features=(
@@ -98,6 +99,9 @@ apply_linux_daily_snap() {
 apply_linux_daily_manual() {
   add_item manual_install_array "$1"
   add_item apt_prereq_array wget
+  if [ "$1" = "eza" ]; then
+    add_item apt_prereq_array gnupg
+  fi
 }
 
 apply_linux_shell_selection() {

@@ -96,6 +96,21 @@ bash ./install-linux-engineer-interactive.sh
 source ~/.zshrc
 ```
 
+## eza
+
+`eza` 是支援色彩、圖示與檔案資訊的 `ls` 替代工具。
+
+- macOS 批次版：透過 Homebrew 安裝。
+- Linux 批次版：使用 eza 官方提供的 apt 套件來源安裝。
+- 選單版：在 CLI 工具或外部下載工具中選擇 `eza`。
+
+安裝後可直接使用：
+
+```bash
+eza
+eza -la
+```
+
 每次執行都會在 `logs/` 產生安裝紀錄，方便查找失敗項目。
 
 ## zoxide

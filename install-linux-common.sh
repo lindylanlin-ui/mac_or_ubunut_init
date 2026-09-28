@@ -439,6 +439,17 @@ install_manual_extra_browsers() {
   fi
 }
 
+install_manual_eza() {
+  if [[ ! " ${manual_install_array[*]} " =~ " eza " ]]; then
+    return
+  fi
+
+  install_pkg \
+    "set -o pipefail && sudo install -d -m 0755 /etc/apt/keyrings && wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/gierens.gpg >/dev/null && echo 'deb [signed-by=/etc/apt/keyrings/gierens.gpg] https://deb.gierens.de stable main' | sudo tee /etc/apt/sources.list.d/gierens.list >/dev/null && sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list && sudo apt update -qq && sudo apt install -y eza -qq" \
+    "command_exists eza" \
+    "安裝 eza"
+}
+
 install_manual_engineer_tools() {
   if ! is_enabled "${ENABLE_ENGINEER_FEATURES:-false}"; then
     return
@@ -807,6 +818,7 @@ run_linux_install() {
   install_manual_engineer_tools
   install_manual_google_chrome
   install_manual_extra_browsers
+  install_manual_eza
   print_unsupported_apps
   install_shell_features
   finalize_shell

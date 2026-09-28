@@ -69,6 +69,7 @@ mac_engineer_formulas=(
   "fd|更快、更直覺的檔案搜尋工具。"
   "ripgrep|高速搜尋檔案內容。"
   "zoxide|更聰明的資料夾跳轉工具。"
+  "eza|更現代、支援色彩與圖示的 ls 替代工具。"
   "resvg|將 SVG 渲染成 PNG 等圖片格式。"
   "imagemagick|圖片轉換、裁切與批次處理工具。"
 )
