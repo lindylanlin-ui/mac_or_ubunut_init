@@ -35,6 +35,32 @@ bash ./install-linux-engineer.sh
 
 Linux 腳本會使用 `sudo`，請先確認目前帳號有 sudo 權限。所有版本都需要網路連線；macOS 會安裝或使用 Homebrew，Linux 會使用 apt、snap 及部分官方下載來源。
 
+## 選單版：自行挑選安裝內容
+
+如果不想一次安裝整套環境，可以使用選單版。選單會以勾選方式列出套件，並在每個選項旁提供簡短的繁體中文用途說明；使用空白鍵勾選，按 Enter 確認。
+
+### macOS
+
+```bash
+# 日常選單版
+bash ./install-mac-interactive.sh
+
+# 工程師選單版
+bash ./install-mac-engineer-interactive.sh
+```
+
+### Ubuntu / Zorin
+
+```bash
+# 日常選單版
+bash ./install-linux-interactive.sh
+
+# 工程師選單版
+bash ./install-linux-engineer-interactive.sh
+```
+
+第一次執行時，若系統沒有 `dialog`，腳本會先安裝它來顯示選單。Linux 選取的工具若需要 `curl`、`git`、編譯工具或其他基礎依賴，必要依賴會自動補上。
+
 ## 該選哪個腳本？
 
 | 需求 | 入口腳本 | 內容概略 |
@@ -85,7 +111,9 @@ Yazi 設定放在 [`yazi/`](./yazi/)。安裝流程會依作業系統選擇設�
 
 ## 專案檔案
 
-- 安裝入口：[`install.sh`](./install.sh)、[`install-engineer.sh`](./install-engineer.sh)、[`install-linux.sh`](./install-linux.sh)、[`install-linux-engineer.sh`](./install-linux-engineer.sh)
+- 批次安裝入口：[`install.sh`](./install.sh)、[`install-engineer.sh`](./install-engineer.sh)、[`install-linux.sh`](./install-linux.sh)、[`install-linux-engineer.sh`](./install-linux-engineer.sh)
+- 選單安裝入口：[`install-mac-interactive.sh`](./install-mac-interactive.sh)、[`install-mac-engineer-interactive.sh`](./install-mac-engineer-interactive.sh)、[`install-linux-interactive.sh`](./install-linux-interactive.sh)、[`install-linux-engineer-interactive.sh`](./install-linux-engineer-interactive.sh)
+- 選單共用工具：[`install-interactive-common.sh`](./install-interactive-common.sh)
 - macOS iTerm2 設定：[`new_tuffy_iterm2_setting.json`](./new_tuffy_iterm2_setting.json)
 - Vim 設定：[`vimrc.txt`](./vimrc.txt)
 - Shell 範本：[`zshrc-template.txt`](./zshrc-template.txt)、[`zshrc-linux-template.zsh`](./zshrc-linux-template.zsh)、[`zshrc-zorin-template.txt`](./zshrc-zorin-template.txt)

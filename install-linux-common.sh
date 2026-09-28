@@ -314,6 +314,11 @@ install_apt_packages() {
 
 install_snaps() {
   local kit
+
+  if [ "${#snap_array[@]}" -eq 0 ] && [ "${#snap_classic_array[@]}" -eq 0 ]; then
+    return
+  fi
+
   num="$((num + 1))"
   if ! command_exists snap; then
     if run_logged_cmd "安裝 snapd" "sudo apt install -y snapd -qq"; then
@@ -467,6 +472,10 @@ print_unsupported_apps() {
 }
 
 install_shell_features() {
+  if ! is_enabled "${ENABLE_SHELL_FEATURES:-true}"; then
+    return
+  fi
+
   if is_enabled "${ENABLE_SLIDEV:-false}"; then
     install_pkg "npm install -g @slidev/cli" "command_exists slidev" "安裝 npm slidev"
   fi
@@ -545,12 +554,19 @@ install_shell_features() {
 }
 
 finalize_shell() {
+  if is_enabled "${ENABLE_VIMRC:-true}"; then
+    append_to_file ":map f w" "$HOME/.vimrc" "設定 .vimrc"
+  fi
+
+  if ! is_enabled "${ENABLE_SHELL_SETUP:-true}"; then
+    return
+  fi
+
   if command_exists terraform; then
     terraform -install-autocomplete &>/dev/null || true
   fi
 
   sync_zshrc
-  append_to_file ":map f w" "$HOME/.vimrc" "設定 .vimrc"
 
   num="$((num + 1))"
   if [ "$SHELL" != "$(which zsh)" ]; then
@@ -575,6 +591,10 @@ install_and_configure_yazi() {
   local source_dir="$SCRIPT_DIR/yazi"
   local config_dir="$HOME/.config/yazi"
   local file
+
+  if ! is_enabled "${ENABLE_YAZI:-true}"; then
+    return
+  fi
 
   num="$((num + 1))"
   if ! command_exists yazi; then

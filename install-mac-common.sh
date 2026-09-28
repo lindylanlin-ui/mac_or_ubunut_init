@@ -676,6 +676,10 @@ configure_yazi() {
   local config_dir="$HOME/.config/yazi"
   local file
 
+  if ! is_enabled "${ENABLE_YAZI:-true}"; then
+    return
+  fi
+
   num="$((num + 1))"
   if ! command -v yazi >/dev/null 2>&1; then
     print_msg "設定 Yazi" "${YELLOW}" "略過，未安裝 yazi"
@@ -848,6 +852,18 @@ print_summary() {
 }
 
 run_mac_install() {
+  success_count=0
+  num=0
+  already_count=0
+  failed_count=0
+  skipped_count=0
+  repo_missing_count=0
+  success_items=()
+  already_items=()
+  failed_items=()
+  skipped_items=()
+  repo_missing_items=()
+
   echo -e "============================== ${PROFILE_TITLE} 腳本 =============================="
   echo -e "${PROFILE_DESCRIPTION}"
   echo -e "腳本開始時間 ${nowtime}"
