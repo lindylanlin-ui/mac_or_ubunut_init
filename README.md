@@ -35,6 +35,15 @@ bash ./install-linux-engineer.sh
 
 Linux 腳本會使用 `sudo`，請先確認目前帳號有 sudo 權限。所有版本都需要網路連線；macOS 會安裝或使用 Homebrew，Linux 會使用 apt、snap 及部分官方下載來源。
 
+## 瀏覽器與 VS Code
+
+批次版與選單版都提供以下選項：
+
+- macOS：Chrome、Brave、Firefox、Microsoft Edge 與 Visual Studio Code，透過 Homebrew cask 安裝。
+- Ubuntu / Zorin：Chrome、Brave、Microsoft Edge 透過官方 apt 來源安裝；Firefox 與 Visual Studio Code 使用 snap。
+
+Linux 的 Brave 與 Edge 會加入各自的官方套件來源，之後可由 apt 接收更新。
+
 ## 選單版：自行挑選安裝內容
 
 如果不想一次安裝整套環境，可以使用選單版。選單會以勾選方式列出套件，並在每個選項旁提供簡短的繁體中文用途說明；使用空白鍵勾選，按 Enter 確認。

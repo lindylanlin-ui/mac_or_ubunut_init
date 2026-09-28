@@ -60,6 +60,7 @@ linux_engineer_apt=(
 linux_engineer_snap=(
   "yq|處理 YAML 與 JSON 設定檔。"
   "drawio|繪製流程圖與架構圖。"
+  "firefox|Mozilla Firefox 網頁瀏覽器。"
   "kubectl|Kubernetes 指令列工具。"
   "helm|Kubernetes 套件管理器。"
   "aws-cli|在終端機管理 AWS 資源。"
@@ -74,6 +75,8 @@ linux_engineer_manual=(
   "terraform|以程式碼管理雲端與基礎設施。"
   "gcloud|Google Cloud 資源管理工具。"
   "google-chrome|Google Chrome 網頁瀏覽器。"
+  "brave-browser|注重隱私與廣告阻擋的網頁瀏覽器。"
+  "microsoft-edge|Microsoft Edge 網頁瀏覽器。"
 )
 
 linux_shell_features=(
@@ -99,7 +102,12 @@ add_item() {
 }
 
 apply_linux_engineer_apt() { add_item apt_array "$1"; }
-apply_linux_engineer_snap() { add_item snap_array "$1"; }
+apply_linux_engineer_snap() {
+  case "$1" in
+    kubectl|helm|aws-cli|code|docker) add_item snap_classic_array "$1" ;;
+    *) add_item snap_array "$1" ;;
+  esac
+}
 
 apply_linux_engineer_manual() {
   add_item manual_install_array "$1"

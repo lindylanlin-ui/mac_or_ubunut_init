@@ -55,10 +55,14 @@ linux_daily_apt=(
 linux_daily_snap=(
   "yq|處理 YAML 與 JSON 設定檔。"
   "drawio|繪製流程圖與架構圖。"
+  "firefox|Mozilla Firefox 網頁瀏覽器。"
+  "code|Visual Studio Code 程式碼編輯器。"
 )
 
 linux_daily_manual=(
   "google-chrome|Google Chrome 網頁瀏覽器。"
+  "brave-browser|注重隱私與廣告阻擋的網頁瀏覽器。"
+  "microsoft-edge|Microsoft Edge 網頁瀏覽器。"
 )
 
 linux_shell_features=(
@@ -77,7 +81,12 @@ add_item() {
 }
 
 apply_linux_daily_apt() { add_item apt_array "$1"; }
-apply_linux_daily_snap() { add_item snap_array "$1"; }
+apply_linux_daily_snap() {
+  case "$1" in
+    code) add_item snap_classic_array "$1" ;;
+    *) add_item snap_array "$1" ;;
+  esac
+}
 apply_linux_daily_manual() { add_item manual_install_array "$1"; add_item apt_prereq_array wget; }
 
 apply_linux_shell_selection() {
@@ -123,6 +132,7 @@ for_each_menu_selection "$MENU_SELECTIONS" apply_linux_shell_selection
 echo ""
 echo "已選擇的 apt 套件：${apt_array[*]:-無}"
 echo "已選擇的 snap 套件：${snap_array[*]:-無}"
+echo "已選擇的 snap classic 套件：${snap_classic_array[*]:-無}"
 echo "已選擇的外部下載工具：${manual_install_array[*]:-無}"
 echo "即將開始安裝；必要依賴可能會一併安裝。"
 run_linux_install

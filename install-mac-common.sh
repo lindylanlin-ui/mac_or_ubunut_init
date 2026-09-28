@@ -92,6 +92,15 @@ app_exists_for_cask() {
     google-chrome)
       [ -d "/Applications/Google Chrome.app" ]
       ;;
+    brave-browser)
+      [ -d "/Applications/Brave Browser.app" ]
+      ;;
+    firefox)
+      [ -d "/Applications/Firefox.app" ]
+      ;;
+    microsoft-edge)
+      [ -d "/Applications/Microsoft Edge.app" ]
+      ;;
     iterm2)
       [ -d "/Applications/iTerm.app" ]
       ;;

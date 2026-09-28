@@ -312,6 +312,25 @@ install_apt_packages() {
   done
 }
 
+snap_package_already_available() {
+  local kit="$1"
+
+  if command_exists snap && snap list "$kit" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  case "$kit" in
+    firefox) command_exists firefox ;;
+    code) command_exists code ;;
+    kubectl) command_exists kubectl ;;
+    helm) command_exists helm ;;
+    aws-cli) command_exists aws ;;
+    docker) command_exists docker ;;
+    yq) command_exists yq ;;
+    *) return 1 ;;
+  esac
+}
+
 install_snaps() {
   local kit
 
@@ -338,7 +357,7 @@ install_snaps() {
 
   for kit in "${snap_array[@]}"; do
     num="$((num + 1))"
-    if snap list "$kit" >/dev/null 2>&1; then
+    if snap_package_already_available "$kit"; then
       already_count="$((already_count + 1))"
       print_msg "安裝 snap 套件 ($kit)" "${YELLOW}" "已安裝"
       record_already "安裝 snap 套件 ($kit)"
@@ -359,7 +378,7 @@ install_snaps() {
 
   for kit in "${snap_classic_array[@]}"; do
     num="$((num + 1))"
-    if snap list "$kit" >/dev/null 2>&1; then
+    if snap_package_already_available "$kit"; then
       already_count="$((already_count + 1))"
       print_msg "安裝 snap 套件 --classic ($kit)" "${YELLOW}" "已安裝"
       record_already "安裝 snap 套件 --classic ($kit)"
@@ -401,6 +420,22 @@ install_manual_google_chrome() {
     failed_count="$((failed_count + 1))"
     print_msg "安裝 Google Chrome" "${RED}" "安裝失敗"
     record_failure "安裝 Google Chrome" "安裝命令失敗，詳見 ${LOG_FILE}"
+  fi
+}
+
+install_manual_extra_browsers() {
+  if [[ " ${manual_install_array[*]} " =~ " brave-browser " ]]; then
+    install_pkg \
+      "sudo install -d -m 0755 /etc/apt/keyrings && sudo curl -fsSLo /etc/apt/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg && sudo curl -fsSLo /etc/apt/sources.list.d/brave-browser.sources https://brave-browser-apt-release.s3.brave.com/brave-browser.sources && sudo apt update -qq && sudo apt install -y brave-browser -qq" \
+      "command_exists brave-browser" \
+      "安裝 Brave Browser"
+  fi
+
+  if [[ " ${manual_install_array[*]} " =~ " microsoft-edge " ]]; then
+    install_pkg \
+      "curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft-edge.gpg >/dev/null && echo 'deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main' | sudo tee /etc/apt/sources.list.d/microsoft-edge.list >/dev/null && sudo apt update -qq && sudo apt install -y microsoft-edge-stable -qq" \
+      "command_exists microsoft-edge || dpkg -s microsoft-edge-stable >/dev/null 2>&1" \
+      "安裝 Microsoft Edge"
   fi
 }
 
@@ -744,6 +779,7 @@ run_linux_install() {
   install_snaps
   install_manual_engineer_tools
   install_manual_google_chrome
+  install_manual_extra_browsers
   print_unsupported_apps
   install_shell_features
   finalize_shell

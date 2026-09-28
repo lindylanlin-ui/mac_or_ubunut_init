@@ -74,6 +74,9 @@ mac_engineer_formulas=(
 
 mac_engineer_casks=(
   "google-chrome|Google Chrome 網頁瀏覽器。"
+  "brave-browser|注重隱私與廣告阻擋的網頁瀏覽器。"
+  "firefox|Mozilla Firefox 網頁瀏覽器。"
+  "microsoft-edge|Microsoft Edge 網頁瀏覽器。"
   "iterm2|macOS 終端機，支援分頁與高階設定。"
   "visual-studio-code|程式碼編輯器與擴充套件平台。"
   "docker|容器執行環境與管理工具。"
